@@ -1,16 +1,20 @@
-# Colab Notebooks
+# Notebooks
 
-All GPU experiments run on **Google Colab** with A100 runtime.
+> Part of [MoE-Sched](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
+
+Jupyter notebooks for trace recording, profiling, and evaluation.
+GPU experiments run on **Google Colab** with an A100 runtime.
 
 ## Notebooks
 
-| Notebook | Status | Purpose |
-|----------|--------|---------|
-| `01_trace_recording.ipynb` | ✅ | Load Mixtral, record expert activation traces |
-| `02_profile_dispatch.ipynb` | ✅ | Profile Python vs Cython (component + full hook) dispatch |
-| `03_baselines.ipynb` | 🔄 | vLLM baseline; MoE-Infinity placeholder |
-| `04_full_evaluation.ipynb` | ✅ | Full policy × workload × model evaluation |
-| `05_deepseek_traces.ipynb` | ✅ | DeepSeek-V2-Lite trace recording |
+| Notebook | Purpose |
+|----------|---------|
+| `01_trace_recording.ipynb` | Load Mixtral-8×7B, record expert activation traces |
+| `02_profile_dispatch.ipynb` | Profile Python vs. Cython dispatch overhead |
+| `03_baselines.ipynb` | vLLM and MoE-Infinity baseline comparison |
+| `04_full_evaluation.ipynb` | Full policy × workload × model evaluation |
+| `05_deepseek_traces.ipynb` | DeepSeek-V2-Lite trace recording |
+| `06_e2e_throughput.ipynb` | End-to-end throughput benchmark (hooks vs. vanilla) |
 
 ## Setup
 
@@ -22,8 +26,8 @@ All GPU experiments run on **Google Colab** with A100 runtime.
 
 ```
 My Drive/moe-sched-paper/
-├── moe_sched/          # Package source (zip uploaded from local)
+├── moe_sched/          # Package source
 ├── traces/             # Recorded traces (.jsonl)
-├── results/            # Experiment outputs (JSON, PDF figures)
-└── checkpoints/        # Model cache (avoid re-downloading)
+├── results/            # Experiment outputs (JSON, PDF)
+└── checkpoints/        # Model cache
 ```

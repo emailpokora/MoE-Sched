@@ -1,5 +1,7 @@
 # MoE-Sched Language Manual
 
+> Author: **Jesse Pokora** &middot; License: [MIT](../LICENSE)
+
 A complete guide to the MoE-Sched domain-specific language for declaring
 expert caching, prefetching, and scheduling policies for Mixture-of-Experts
 inference.

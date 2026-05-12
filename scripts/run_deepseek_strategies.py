@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Evaluate DeepSeek-specific caching strategies.
 
 Tests:
@@ -275,16 +276,17 @@ def fig_strategy_comparison(combined_results):
     names = list(combined_results.keys())
     hrs = [combined_results[n]["hit_rate"] * 100 for n in names]
 
-    fig, ax = plt.subplots(figsize=(10, 4.5))
+    fig, ax = plt.subplots(figsize=(3.5, 3.5))
     bars = ax.barh(range(len(names)), hrs, color="#4C72B0", alpha=0.85, edgecolor="white")
     ax.set_yticks(range(len(names)))
-    ax.set_yticklabels(names, fontsize=9)
-    ax.set_xlabel("Hit Rate (%)", fontsize=10)
-    ax.set_title("DeepSeek-V2-Lite: Caching Strategy Comparison", fontsize=12)
+    ax.set_yticklabels(names, fontsize=7)
+    ax.set_xlabel("Hit Rate (%)", fontsize=8)
 
     for bar, hr in zip(bars, hrs):
         ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height() / 2,
-                f"{hr:.1f}%", va="center", fontsize=9)
+                f"{hr:.1f}%", va="center", fontsize=7)
+
+    ax.tick_params(labelsize=7)
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -322,21 +324,21 @@ def fig_entropy_allocation(header, data):
     ents = [entropies[l] for l in layers]
     caps = [capacities.get(l, 0) for l in layers]
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 5), sharex=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(3.5, 4), sharex=True)
 
     ax1.bar(layers, ents, color="#4C72B0", alpha=0.85, edgecolor="white")
-    ax1.set_ylabel("Shannon Entropy", fontsize=10)
-    ax1.set_title("DeepSeek-V2-Lite: Per-Layer Routing Entropy", fontsize=11)
+    ax1.set_ylabel("Shannon Entropy", fontsize=8)
     ax1.axhline(y=math.log2(64), color="red", linestyle="--", linewidth=1,
                 label=f"max (log₂64 = {math.log2(64):.2f})")
-    ax1.legend(fontsize=8)
+    ax1.legend(fontsize=7)
+    ax1.tick_params(labelsize=7)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
 
     ax2.bar(layers, caps, color="#C44E52", alpha=0.85, edgecolor="white")
-    ax2.set_xlabel("Layer Index", fontsize=10)
-    ax2.set_ylabel("Allocated Capacity", fontsize=10)
-    ax2.set_title("Entropy-Proportional Cache Allocation", fontsize=11)
+    ax2.set_xlabel("Layer Index", fontsize=8)
+    ax2.set_ylabel("Allocated Capacity", fontsize=8)
+    ax2.tick_params(labelsize=7)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
 

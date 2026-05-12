@@ -1,27 +1,40 @@
 # Expert Activation Traces
 
-This directory stores recorded expert activation traces from real MoE models.
+> Part of [MoE-Sched](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
 
-## Files (to be generated)
+This directory stores recorded expert activation traces and experiment results.
 
-| File | Model | Workload | Size |
-|------|-------|----------|------|
-| `mixtral_sharegpt.jsonl` | Mixtral-8x7B | ShareGPT 100 prompts | ~50MB |
-| `mixtral_lmsys.jsonl` | Mixtral-8x7B | LMSYS-Chat subset | ~50MB |
-| `mixtral_longcontext.jsonl` | Mixtral-8x7B | Long-context (32K+) | ~200MB |
-| `deepseek_sharegpt.jsonl` | DeepSeek-V2-Lite | ShareGPT 100 prompts | ~100MB |
-| `deepseek_lmsys.jsonl` | DeepSeek-V2-Lite | LMSYS-Chat subset | ~100MB |
+## Trace Files
 
-## How to generate
+| File | Model | Description |
+|------|-------|-------------|
+| `mixtral_sample.jsonl` | Mixtral-8×7B | 8 experts, 32 layers, top-2 routing |
+| `deepseek_v2_lite_sample.jsonl` | DeepSeek-V2-Lite | 64 experts, 27 layers, top-6 routing |
+
+## Experiment Results
+
+| File | Description |
+|------|-------------|
+| `eval_results.json` | Cross-policy evaluation (both models) |
+| `eval_results_mixtral_sample.json` | Mixtral-specific evaluation |
+| `eval_results_deepseek_v2_lite_sample.json` | DeepSeek-specific evaluation |
+| `sweep_results.json` | Capacity sweep results |
+| `deepseek_strategy_results.json` | DeepSeek caching strategy comparison |
+| `stats_results.json` | Statistical analysis (bootstrap CIs, Wilcoxon) |
+| `constrained_e2e_results.json` | Live OLMoE inference on RTX 5080 |
+
+## Recording New Traces
 
 ```bash
-# Requires GPU and model weights
-python scripts/record_traces.py --model mistralai/Mixtral-8x7B-Instruct-v0.1 \
+python scripts/record_traces.py \
+    --model mistralai/Mixtral-8x7B-Instruct-v0.1 \
     --prompts evaluation/workloads/sharegpt_sample.json \
     --output traces/mixtral_sharegpt.jsonl
 ```
 
+Requires a GPU and model weights. See `evaluation/workloads/README.md` for
+trace format details.
+
 ## Note
 
-Trace files are large and should NOT be committed to git.
-Add to `.gitignore`: `traces/*.jsonl`
+Large `.jsonl` trace files are excluded from version control via `.gitignore`.

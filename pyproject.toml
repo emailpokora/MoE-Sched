@@ -1,6 +1,10 @@
 [project]
 name = "moe-sched"
-version = "1.0.0-dev"
+version = "1.0.0"
+description = "A domain-specific language for Mixture-of-Experts scheduling policies"
+authors = [{name = "Jesse Pokora"}]
+license = {text = "MIT"}
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["lark>=1.1,<2"]
 

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Generate paper figures from Mixtral and DeepSeek trace data."""
 import json
 import os
@@ -66,7 +67,7 @@ def _run_capacity_sweep(trace_data, caps, eviction="lru"):
 def fig_capacity_sweep():
     caps = [2, 4, 8, 16, 32]
     colors = ["#4C72B0", "#C44E52", "#55A868", "#8172B2"]
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots(figsize=(3.5, 2.8))
     width = 0.35
     x = np.arange(len(caps))
 
@@ -80,13 +81,13 @@ def fig_capacity_sweep():
             ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
                     f"{hr:.0%}", ha="center", va="bottom", fontsize=7)
 
-    ax.set_xlabel("Cache Capacity (experts)", fontsize=11)
-    ax.set_ylabel("Hit Rate (%)", fontsize=11)
-    ax.set_title("Cache Hit Rate vs. Capacity (LRU)", fontsize=12)
+    ax.set_xlabel("Cache Capacity (experts)", fontsize=8)
+    ax.set_ylabel("Hit Rate (%)", fontsize=8)
     ax.set_xticks(x)
     ax.set_xticklabels(caps)
     ax.set_ylim(0, 110)
-    ax.legend(fontsize=9)
+    ax.legend(fontsize=7)
+    ax.tick_params(labelsize=7)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     fig.tight_layout()
@@ -100,7 +101,7 @@ def fig_capacity_sweep():
 def fig_rolling_hit_rate():
     window = 500
     cap = 8  # same capacity for fair comparison
-    fig, axes = plt.subplots(1, len(traces), figsize=(5.5 * len(traces), 3.5), sharey=True)
+    fig, axes = plt.subplots(len(traces), 1, figsize=(3.5, 2.5 * len(traces)), sharey=True)
     if len(traces) == 1:
         axes = [axes]
 
@@ -133,15 +134,15 @@ def fig_rolling_hit_rate():
             ax.plot(range(window, len(hit_miss) + 1), rolling_hr * 100,
                     label=ev.upper(), linewidth=1.2)
 
-        ax.set_xlabel("Dispatch Step", fontsize=10)
-        ax.set_title(f"{label} (cap={cap})", fontsize=11)
-        ax.legend(fontsize=8)
+        ax.set_xlabel("Dispatch Step", fontsize=8)
+        ax.set_title(f"{label} (cap={cap})", fontsize=8)
+        ax.legend(fontsize=7)
         ax.set_ylim(0, 105)
+        ax.tick_params(labelsize=7)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    axes[0].set_ylabel("Rolling Hit Rate (%)", fontsize=10)
-    fig.suptitle(f"Rolling Cache Hit Rate (window={window})", fontsize=12)
+    axes[0].set_ylabel("Rolling Hit Rate (%)", fontsize=8)
     fig.tight_layout()
     path = os.path.join(FIG_DIR, "rolling_hit_rate.pdf")
     fig.savefig(path, dpi=300)
@@ -163,7 +164,7 @@ def fig_ablation():
     ]
     colors = ["#4C72B0", "#55A868", "#C44E52", "#8172B2"]
 
-    fig, axes = plt.subplots(1, len(traces), figsize=(5 * len(traces), 3.5), sharey=True)
+    fig, axes = plt.subplots(1, len(traces), figsize=(3.5, 2.8), sharey=True)
     if len(traces) == 1:
         axes = [axes]
 
@@ -189,13 +190,13 @@ def fig_ablation():
         bars = ax.bar(abl_labels, abl_hrs, color=colors, edgecolor="white")
         for bar, hr in zip(bars, abl_hrs):
             ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
-                    f"{hr:.1f}%", ha="center", va="bottom", fontsize=8)
-        ax.set_title(f"{label} (cap=8)", fontsize=11)
+                    f"{hr:.1f}%", ha="center", va="bottom", fontsize=6)
+        ax.set_title(f"{label} (cap=8)", fontsize=8)
+        ax.tick_params(labelsize=7)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    axes[0].set_ylabel("Hit Rate (%)", fontsize=10)
-    fig.suptitle("Ablation: Composition Axes", fontsize=12)
+    axes[0].set_ylabel("Hit Rate (%)", fontsize=8)
     fig.tight_layout()
     path = os.path.join(FIG_DIR, "ablation.pdf")
     fig.savefig(path, dpi=300)
@@ -205,7 +206,7 @@ def fig_ablation():
 
 # ── Figure 4: Expert activation frequency comparison ─────────────────
 def fig_expert_frequency():
-    fig, axes = plt.subplots(1, len(traces), figsize=(5.5 * len(traces), 3.5))
+    fig, axes = plt.subplots(len(traces), 1, figsize=(3.5, 2.5 * len(traces)))
     if len(traces) == 1:
         axes = [axes]
 
@@ -221,13 +222,13 @@ def fig_expert_frequency():
         pcts = [f / total * 100 for f in freqs]
 
         ax.bar(range(num_experts), pcts, color="#4C72B0", edgecolor="none", alpha=0.8)
-        ax.set_xlabel("Expert ID", fontsize=10)
-        ax.set_title(f"{label} ({num_experts} experts)", fontsize=11)
+        ax.set_xlabel("Expert ID", fontsize=8)
+        ax.set_title(f"{label} ({num_experts} experts)", fontsize=8)
+        ax.tick_params(labelsize=7)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    axes[0].set_ylabel("Activation Share (%)", fontsize=10)
-    fig.suptitle("Expert Activation Frequency Distribution", fontsize=12)
+    axes[0].set_ylabel("Activation Share (%)", fontsize=8)
     fig.tight_layout()
     path = os.path.join(FIG_DIR, "expert_frequency.pdf")
     fig.savefig(path, dpi=300)
@@ -255,19 +256,19 @@ def fig_overhead():
     width = 0.35
     colors = ["#4C72B0", "#C44E52"]
 
-    fig, ax = plt.subplots(figsize=(8, 3.5))
+    fig, ax = plt.subplots(figsize=(3.5, 2.8))
     for i, (tname, policies) in enumerate(results_by_trace.items()):
         label = DISPLAY.get(tname, tname)
         times = [policies[p]["us_per_layer"] for p in policy_names]
         offset = (i - (len(results_by_trace) - 1) / 2) * width
         ax.bar(x + offset, times, width * 0.9, label=label, color=colors[i % len(colors)], alpha=0.85)
 
-    ax.set_xlabel("Policy", fontsize=10)
-    ax.set_ylabel("Dispatch Time (\u00b5s/layer)", fontsize=10)
-    ax.set_title("Per-Layer Dispatch Overhead", fontsize=12)
+    ax.set_xlabel("Policy", fontsize=8)
+    ax.set_ylabel("Dispatch Time (\u00b5s/layer)", fontsize=8)
     ax.set_xticks(x)
-    ax.set_xticklabels(policy_names, rotation=15, ha="right", fontsize=9)
-    ax.legend(fontsize=9)
+    ax.set_xticklabels(policy_names, rotation=15, ha="right", fontsize=7)
+    ax.legend(fontsize=7)
+    ax.tick_params(labelsize=7)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     fig.tight_layout()
@@ -281,20 +282,20 @@ def fig_overhead():
 def fig_capacity_line():
     caps = [2, 4, 8, 16, 32]
     colors = ["#4C72B0", "#C44E52"]
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(3.5, 2.8))
 
     for i, (tname, tdata) in enumerate(traces.items()):
         label = DISPLAY.get(tname, tname)
         hrs = _run_capacity_sweep(tdata["data"], caps)
         ax.plot(caps, [hr * 100 for hr in hrs], "o-", color=colors[i % len(colors)],
-                label=label, linewidth=2, markersize=6)
+                label=label, linewidth=1.5, markersize=4)
 
-    ax.set_xlabel("Cache Capacity (experts)", fontsize=11)
-    ax.set_ylabel("Hit Rate (%)", fontsize=11)
-    ax.set_title("Cache Hit Rate vs. Capacity (LRU)", fontsize=12)
-    ax.legend(fontsize=9)
+    ax.set_xlabel("Cache Capacity (experts)", fontsize=8)
+    ax.set_ylabel("Hit Rate (%)", fontsize=8)
+    ax.legend(fontsize=7)
     ax.set_ylim(0, 105)
     ax.grid(True, alpha=0.3)
+    ax.tick_params(labelsize=7)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     fig.tight_layout()

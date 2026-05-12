@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Build configuration for Cython extensions (Phase 2).
 
 Usage:
@@ -25,7 +26,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="moe-sched",
-    version="1.0.0-dev",
+    version="1.0.0",
+    author="Jesse Pokora",
+    description="A domain-specific language for Mixture-of-Experts scheduling policies",
+    license="MIT",
     packages=find_packages(),
     # ext_modules=ext_modules,  # Uncomment for Phase 2
     python_requires=">=3.10",

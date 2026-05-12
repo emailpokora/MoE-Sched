@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Statistical analysis with confidence intervals for paper.
 
 Produces:
@@ -285,7 +286,7 @@ def run_per_layer_analysis(traces):
     target_policy = "lru_basic"
     compiled = policies[target_policy]
 
-    fig, axes = plt.subplots(1, len(traces), figsize=(6 * len(traces), 4))
+    fig, axes = plt.subplots(len(traces), 1, figsize=(3.5, 2.5 * len(traces)))
     if len(traces) == 1:
         axes = [axes]
 
@@ -320,9 +321,10 @@ def run_per_layer_analysis(traces):
         hrs = [layer_hits[l] / max(1, layer_lookups[l]) for l in layers]
 
         ax.bar(layers, [hr * 100 for hr in hrs], color="#4C72B0", edgecolor="white", alpha=0.85)
-        ax.set_xlabel("Layer Index", fontsize=10)
-        ax.set_title(f"{label} ({target_policy})", fontsize=11)
+        ax.set_xlabel("Layer Index", fontsize=8)
+        ax.set_title(f"{label} ({target_policy})", fontsize=8)
         ax.set_ylim(0, 105)
+        ax.tick_params(labelsize=7)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
@@ -330,7 +332,7 @@ def run_per_layer_analysis(traces):
         std_hr = np.std(hrs)
         ax.axhline(y=mean_hr * 100, color="red", linestyle="--", linewidth=1,
                     label=f"mean={mean_hr:.1%} ± {std_hr:.1%}")
-        ax.legend(fontsize=8)
+        ax.legend(fontsize=7)
 
         results[tname] = {
             "per_layer": {str(l): round(hr, 4) for l, hr in zip(layers, hrs)},
@@ -339,8 +341,7 @@ def run_per_layer_analysis(traces):
         }
         print(f"\n{label}: mean={mean_hr:.1%}, std={std_hr:.1%}, range=[{min(hrs):.1%}, {max(hrs):.1%}]")
 
-    axes[0].set_ylabel("Hit Rate (%)", fontsize=10)
-    fig.suptitle(f"Per-Layer Hit Rate Distribution ({target_policy})", fontsize=12)
+    axes[0].set_ylabel("Hit Rate (%)", fontsize=8)
     fig.tight_layout()
     path = os.path.join(FIG_DIR, "per_layer_hitrate.pdf")
     fig.savefig(path, dpi=300)
@@ -358,7 +359,7 @@ def fig_hitrate_with_ci(bootstrap_results, traces):
     policies = list(get_dsl_policies().keys())
     colors = ["#4C72B0", "#C44E52"]
 
-    fig, ax = plt.subplots(figsize=(9, 4))
+    fig, ax = plt.subplots(figsize=(3.5, 2.8))
     x = np.arange(len(policies))
     width = 0.35
 
@@ -378,12 +379,12 @@ def fig_hitrate_with_ci(bootstrap_results, traces):
                color=colors[i % len(colors)], alpha=0.85,
                yerr=[ci_lo, ci_hi], capsize=3, error_kw={"linewidth": 1})
 
-    ax.set_xlabel("Policy", fontsize=10)
-    ax.set_ylabel("Hit Rate (%) with 95% CI", fontsize=10)
-    ax.set_title("Cache Hit Rate with Bootstrap 95% Confidence Intervals", fontsize=12)
+    ax.set_xlabel("Policy", fontsize=8)
+    ax.set_ylabel("Hit Rate (%) with 95% CI", fontsize=8)
     ax.set_xticks(x)
-    ax.set_xticklabels(policies, rotation=15, ha="right", fontsize=9)
-    ax.legend(fontsize=9)
+    ax.set_xticklabels(policies, rotation=15, ha="right", fontsize=7)
+    ax.legend(fontsize=7)
+    ax.tick_params(labelsize=7)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     fig.tight_layout()
@@ -398,7 +399,7 @@ def fig_latency_with_ci(latency_results, traces):
     policies = list(get_dsl_policies().keys())
     colors = ["#4C72B0", "#C44E52"]
 
-    fig, ax = plt.subplots(figsize=(9, 4))
+    fig, ax = plt.subplots(figsize=(3.5, 2.8))
     x = np.arange(len(policies))
     width = 0.35
 
@@ -412,12 +413,12 @@ def fig_latency_with_ci(latency_results, traces):
                color=colors[i % len(colors)], alpha=0.85,
                yerr=cis, capsize=3, error_kw={"linewidth": 1})
 
-    ax.set_xlabel("Policy", fontsize=10)
-    ax.set_ylabel("Dispatch Time (µs/layer) ± 95% CI", fontsize=10)
-    ax.set_title("Per-Layer Dispatch Overhead with 95% Confidence Intervals", fontsize=12)
+    ax.set_xlabel("Policy", fontsize=8)
+    ax.set_ylabel("Dispatch Time (µs/layer) ± 95% CI", fontsize=8)
     ax.set_xticks(x)
-    ax.set_xticklabels(policies, rotation=15, ha="right", fontsize=9)
-    ax.legend(fontsize=9)
+    ax.set_xticklabels(policies, rotation=15, ha="right", fontsize=7)
+    ax.legend(fontsize=7)
+    ax.tick_params(labelsize=7)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     fig.tight_layout()

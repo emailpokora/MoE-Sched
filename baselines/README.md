@@ -1,21 +1,22 @@
 # Baselines
 
-Real MoE serving systems for apples-to-apples comparison against MoE-Sched.
+> Part of [MoE-Sched](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
+
+Hand-coded and third-party MoE serving baselines for comparison against
+MoE-Sched DSL-specified policies.
 
 ## Setup
 
 ### vLLM
 
 ```bash
-pip install vllm
-# Requires CUDA 11.8+ and ~50GB disk for Mixtral weights
+pip install vllm   # Requires CUDA 11.8+
 ```
 
 ### MoE-Infinity
 
 ```bash
 pip install moe-infinity
-# Or clone: git clone https://github.com/TorchMoE/MoE-Infinity
 ```
 
 ### DeepSpeed-MoE (optional)
@@ -27,13 +28,19 @@ pip install deepspeed
 ## Running
 
 ```bash
-# After Phase 3 implementation:
-python -m baselines.vllm_baseline --model mistralai/Mixtral-8x7B-v0.1 --prompts traces/sharegpt_sample.jsonl
-python -m baselines.moe_infinity_baseline --model mistralai/Mixtral-8x7B-v0.1 --prompts traces/sharegpt_sample.jsonl
+python -m baselines.vllm_baseline \
+    --model mistralai/Mixtral-8x7B-v0.1 \
+    --prompts traces/sharegpt_sample.jsonl
+
+python -m baselines.moe_infinity_baseline \
+    --model mistralai/Mixtral-8x7B-v0.1 \
+    --prompts traces/sharegpt_sample.jsonl
 ```
 
-## Notes
+## Comparison Methodology
 
-- All baselines must run on **identical hardware** and **identical prompts** for fair comparison.
-- Record GPU memory, tok/s, TTFT, and (if accessible) internal cache hit rates.
-- Results should be exported in a format compatible with `moe_sched.benchmark.metrics.MetricsSummary`.
+- All baselines run on **identical hardware** and **identical prompts**.
+- Metrics recorded: GPU memory, tokens/sec, time-to-first-token, and
+  internal cache hit rates (where accessible).
+- Results are exported in a format compatible with
+  `moe_sched.benchmark.metrics.MetricsSummary`.

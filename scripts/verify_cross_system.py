@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Verify all cross-system .moe policies parse, compile, and run."""
 import json
 import os

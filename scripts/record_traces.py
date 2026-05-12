@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Record expert activation traces from a real HuggingFace MoE model.
 
 Phase 1 entry point: Loads a real model, runs inference on prompts,

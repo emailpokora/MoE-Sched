@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Orchestrate the full evaluation suite (Phase 4).
 
 Runs all experiment configs, all baselines, and generates comparison tables.

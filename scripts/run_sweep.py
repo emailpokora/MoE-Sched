@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Capacity sweep and eviction comparison on expert traces.
 
 Usage:

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Run all benchmark policies and autotuner against expert traces.
 
 Usage:

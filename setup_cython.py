@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Build Cython fast-path extensions for MoE-Sched.
 
 Usage:
