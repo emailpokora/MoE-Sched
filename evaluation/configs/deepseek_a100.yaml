@@ -1,0 +1,39 @@
+# Experiment config: DeepSeek-V2-Lite on A100-80GB
+# Phase 4 — demonstrates DSL generalizes across model families
+
+model:
+  name: "deepseek-ai/DeepSeek-V2-Lite"
+  num_experts: 64
+  experts_per_token: 6
+  num_layers: 27
+  expert_size_gb: 0.15  # smaller experts due to more of them
+
+hardware:
+  gpu: "A100-80GB"
+  gpu_memory_gb: 80
+  cpu_memory_gb: 256
+  pcie_bandwidth_gbps: 32
+
+policies:
+  - lru_basic
+  - lfu_history
+  - score_affinity
+  - composed_full
+  - freq_threshold
+
+workloads:
+  - name: sharegpt
+    trace_path: "traces/deepseek_sharegpt.jsonl"
+    max_prompts: 100
+  - name: lmsys
+    trace_path: "traces/deepseek_lmsys.jsonl"
+    max_prompts: 100
+
+metrics:
+  - tokens_per_second
+  - time_to_first_token_ms
+  - cache_hit_rate
+  - peak_gpu_memory_gb
+  - dispatch_overhead_us_per_layer
+
+output_dir: "results/deepseek_a100/"

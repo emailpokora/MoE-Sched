@@ -1,0 +1,52 @@
+version 0.6
+# Full Week-4 composition showcase.
+#
+# Combines one primitive from every axis:
+#   * cache:    LFU with pin + frequency_decay
+#   * triggers: memory-pressure + TTL (orthogonal to base eviction)
+#   * prefetch: per-layer lookahead pattern matching
+#   * schedule: hybrid with overlap + priority routing
+#   * monitor:  hit-rate + latency + memory over a 200-access window
+#
+# This is the policy the proposal's "frequency-caching +
+# affinity-prefetching + memory-pressure-eviction" composition points at,
+# with LOOKAHEAD substituted for AFFINITY to stress the new prefetcher.
+
+policy composed_showcase {
+    cache {
+        capacity         = 24
+        eviction         = lfu
+        pin              = [0]
+        frequency_decay  = 0.9
+
+        # Memory-pressure trigger: evict down to 40 % when estimated GPU
+        # usage crosses 75 % (for a 16 GB budget, 1.2 GB/expert).
+        memory_threshold = 0.75
+        memory_headroom  = 0.4
+        memory_budget_gb = 16.0
+        expert_size_gb   = 1.2
+
+        # TTL trigger: evict experts unused for 200 accesses.
+        ttl              = 200
+    }
+
+    prefetch {
+        strategy       = lookahead
+        lookahead      = 2
+        budget         = 4
+        history_window = 40
+    }
+
+    schedule {
+        mode             = hybrid
+        offload_threshold_ms = 40.0
+        overlap          = true
+        priority_routing = true
+    }
+
+    monitor {
+        metrics      = [hit_rate, latency, memory]
+        window       = 200
+        log_interval = 50
+    }
+}

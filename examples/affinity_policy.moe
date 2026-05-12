@@ -1,0 +1,35 @@
+version 0.6
+# Example 3: Score-based caching with affinity prefetch (HybriMoE-inspired)
+# - SCORE eviction uses EMA of router scores to keep high-value experts
+# - AFFINITY prefetch uses a co-activation matrix to predict next-layer experts
+# - HYBRID scheduler chooses GPU vs CPU based on PCIe transfer cost
+# - Pins the shared/always-hot experts so they never get evicted
+
+policy affinity_hybrid {
+    cache {
+        capacity = 24
+        eviction = score
+        pin = [0, 1]
+        score_ema_alpha = 0.3
+    }
+
+    prefetch {
+        strategy = affinity
+        lookahead = 2
+        budget = 6
+        affinity_threshold = 0.3
+    }
+
+    schedule {
+        mode = hybrid
+        offload_threshold_ms = 40.0
+        overlap = true
+        priority_routing = true
+    }
+
+    monitor {
+        metrics = [hit_rate, latency, memory]
+        window = 500
+        log_interval = 100
+    }
+}

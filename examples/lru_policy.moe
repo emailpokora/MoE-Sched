@@ -1,0 +1,21 @@
+version 0.6
+# Example 1: LRU caching policy
+# Simple least-recently-used eviction with GPU-only scheduling.
+# Best for workloads with temporal locality in expert activations.
+
+policy lru_baseline {
+    cache {
+        capacity = 16
+        eviction = lru
+    }
+
+    schedule {
+        mode = gpu_only
+    }
+
+    monitor {
+        metrics = [hit_rate, latency]
+        window = 200
+        log_interval = 50
+    }
+}

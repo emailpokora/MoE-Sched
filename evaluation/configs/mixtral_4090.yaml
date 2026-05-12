@@ -1,0 +1,39 @@
+# Experiment config: Mixtral-8x7B on RTX 4090-24GB (memory-constrained)
+# Phase 4 — demonstrates DSL adapts to different GPU budgets
+
+model:
+  name: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+  num_experts: 8
+  experts_per_token: 2
+  num_layers: 32
+  expert_size_gb: 1.2
+
+hardware:
+  gpu: "RTX-4090-24GB"
+  gpu_memory_gb: 24
+  cpu_memory_gb: 64
+  pcie_bandwidth_gbps: 32
+
+policies:
+  - lru_basic
+  - lfu_history
+  - score_affinity
+  - composed_full
+  - freq_threshold
+
+workloads:
+  - name: sharegpt
+    trace_path: "traces/mixtral_sharegpt.jsonl"
+    max_prompts: 100
+  - name: long_context
+    trace_path: "traces/mixtral_longcontext.jsonl"
+    max_prompts: 50
+
+metrics:
+  - tokens_per_second
+  - time_to_first_token_ms
+  - cache_hit_rate
+  - peak_gpu_memory_gb
+  - dispatch_overhead_us_per_layer
+
+output_dir: "results/mixtral_4090/"

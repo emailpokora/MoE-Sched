@@ -1,0 +1,35 @@
+[project]
+name = "moe-sched"
+version = "1.0.0-dev"
+requires-python = ">=3.10"
+dependencies = ["lark>=1.1,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pyyaml"]
+gpu = [
+    "torch>=2.0",
+    "transformers>=5.0.0",
+    "accelerate",
+    # transitive CVE pins
+    "requests>=2.33.0",
+    "urllib3>=2.6.3",
+    "filelock>=3.20.3",
+]
+cython = ["cython>=3.0"]
+eval = [
+    "matplotlib>=3.7",
+    "pyyaml",
+    "pandas",
+    # transitive CVE pin
+    "pillow>=12.2.0",
+]
+all = ["moe-sched[dev,gpu,cython,eval]"]
+
+[project.scripts]
+moe-sched = "moe_sched.cli:main"
+
+[tool.setuptools.package-data]
+moe_sched = ["*.lark"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

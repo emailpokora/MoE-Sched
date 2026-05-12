@@ -1,0 +1,29 @@
+version 0.6
+# Example: Frequency-threshold caching with history-based prefetch
+# Only caches experts whose activation frequency exceeds 5% in a
+# sliding window.  History prefetcher predicts from recent patterns.
+
+policy freq_threshold_history {
+    cache {
+        capacity = 16
+        eviction = frequency_threshold
+        freq_threshold = 0.05
+        freq_window = 100
+    }
+
+    prefetch {
+        strategy = history
+        budget = 4
+        history_window = 60
+    }
+
+    schedule {
+        mode = gpu_only
+    }
+
+    monitor {
+        metrics = [hit_rate, latency]
+        window = 200
+        log_interval = 50
+    }
+}

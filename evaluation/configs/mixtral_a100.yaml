@@ -1,0 +1,43 @@
+# Experiment config: Mixtral-8x7B on A100-80GB
+# Phase 4 — real hardware evaluation
+
+model:
+  name: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+  num_experts: 8
+  experts_per_token: 2
+  num_layers: 32
+  expert_size_gb: 1.2  # approximate per-expert weight size
+
+hardware:
+  gpu: "A100-80GB"
+  gpu_memory_gb: 80
+  cpu_memory_gb: 256
+  pcie_bandwidth_gbps: 32  # PCIe Gen4 x16
+
+policies:
+  - lru_basic
+  - lfu_history
+  - score_affinity
+  - composed_full
+  - freq_threshold
+
+workloads:
+  - name: sharegpt
+    trace_path: "traces/mixtral_sharegpt.jsonl"
+    max_prompts: 100
+  - name: lmsys
+    trace_path: "traces/mixtral_lmsys.jsonl"
+    max_prompts: 100
+  - name: long_context
+    trace_path: "traces/mixtral_longcontext.jsonl"
+    max_prompts: 50
+
+metrics:
+  - tokens_per_second
+  - time_to_first_token_ms
+  - cache_hit_rate
+  - peak_gpu_memory_gb
+  - dispatch_overhead_us_per_layer
+  - prefetch_accuracy
+
+output_dir: "results/mixtral_a100/"

@@ -1,0 +1,23 @@
+version 0.6
+# Composition operator demo: cache layering with fallback
+#
+# Primary tier: LFU eviction (2/3 of capacity)
+# Secondary tier: LRU eviction (1/3 of capacity)
+#
+# On miss in primary, if the expert is in the secondary (LRU) tier,
+# it gets promoted to the primary (LFU) tier.
+
+policy layered_cache {
+    cache {
+        capacity = 24
+        eviction = lfu | lru
+        frequency_decay = 0.9
+    }
+    prefetch {
+        strategy = history
+        budget = 4
+    }
+    schedule {
+        mode = gpu_only
+    }
+}

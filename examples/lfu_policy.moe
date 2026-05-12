@@ -1,0 +1,29 @@
+version 0.6
+# Example 2: LFU caching with history-based prefetch
+# Least-frequently-used eviction with frequency decay.
+# History-based prefetching predicts experts from recent activations.
+# CPU fallback avoids expensive transfers for cache misses.
+
+policy lfu_with_prefetch {
+    cache {
+        capacity = 32
+        eviction = lfu
+        frequency_decay = 0.9
+    }
+
+    prefetch {
+        strategy = history
+        budget = 4
+        history_window = 100
+    }
+
+    schedule {
+        mode = cpu_fallback
+    }
+
+    monitor {
+        metrics = [hit_rate, latency]
+        window = 200
+        log_interval = 100
+    }
+}

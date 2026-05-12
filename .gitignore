@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.so
+
+# Cython
+*.c
+!moe_sched/runtime/_fast/*.pyx
+
+# Traces (large files)
+traces/*.jsonl
+
+# Results (regenerable)
+results/*.json
+results/*.png
+
+# LaTeX
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.pdf
+paper/*.synctex.gz
+
+# IDE
+.vscode/
+.idea/
+.windsurf/
+
+# pytest
+.pytest_cache/
+
+# Packaged archive (regenerable)
+moe_sched.zip
+
+# OpenMemory - IDE/Assistant specific rules
+.windsurf\rules\openmemory.md

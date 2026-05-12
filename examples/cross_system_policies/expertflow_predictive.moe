@@ -1,0 +1,25 @@
+version 0.6
+# Phase 5.4: ExpertFlow's predictive caching in MoE-Sched DSL
+# ExpertFlow uses score-based eviction with lookahead prefetching.
+#
+# Reference: He et al. "ExpertFlow" arXiv:2410.17954
+# Estimated hand-coded equivalent: ~400 LOC (Python + CUDA)
+#
+# Status: STUB — verify against ExpertFlow source during Phase 5
+
+policy expertflow_predictive {
+    cache {
+        capacity = 16
+        eviction = score
+        score_ema_alpha = 0.3
+    }
+    prefetch {
+        strategy = lookahead
+        lookahead = 2
+        budget = 4
+    }
+    schedule {
+        mode = hybrid
+        offload_threshold_ms = 1.5
+    }
+}

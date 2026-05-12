@@ -1,0 +1,22 @@
+[
+  "Explain the difference between transformers and RNNs in detail.",
+  "Write a Python function to sort a list using merge sort. Include type hints.",
+  "What are the main challenges in training large language models?",
+  "Describe the architecture of a Mixture-of-Experts model and how routing works.",
+  "How does expert caching improve MoE inference performance on memory-constrained GPUs?",
+  "Compare and contrast LRU and LFU cache eviction policies.",
+  "Explain how CPU-GPU hybrid execution works in modern ML serving systems.",
+  "Write a detailed explanation of the attention mechanism in transformers.",
+  "What is the difference between dense and sparse models in deep learning?",
+  "Describe three strategies for reducing memory usage during LLM inference.",
+  "How do mixture-of-experts models achieve better scaling than dense transformers?",
+  "Explain the concept of expert parallelism in distributed MoE training.",
+  "Write Python code to implement a simple LRU cache using OrderedDict.",
+  "What are the trade-offs between model quality and inference speed in MoE architectures?",
+  "Describe how prefetching can reduce expert loading latency in MoE serving.",
+  "Explain the role of the router/gating network in MoE models.",
+  "Compare top-k routing with expert choice routing in MoE architectures.",
+  "What is PCIe bandwidth and why does it matter for expert offloading?",
+  "Describe how memory pressure triggers work in cache management systems.",
+  "Write a technical blog post about optimizing MoE inference on a single GPU."
+]
