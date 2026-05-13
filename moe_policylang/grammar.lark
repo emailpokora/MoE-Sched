@@ -1,0 +1,93 @@
+// MoE-Sched policy grammar v0.6
+// Parsed by Lark (LALR) — produces a tree that the IR builder transforms into PolicyIR.
+
+start: version_decl? policy+
+
+version_decl: "version" NUMBER
+
+policy: "policy" NAME "{" block+ "}"
+
+block: cache_block
+     | prefetch_block
+     | schedule_block
+     | monitor_block
+     | adapt_block
+
+// ── cache ──────────────────────────────────────────────────────────
+cache_block: "cache" "{" cache_param+ "}"
+
+cache_param: "capacity"          "=" INT        -> cache_capacity
+           | "capacity"          "=" INT ":" INT "when" NAME COMP_OP NUMBER -> cache_capacity_cond
+           | "eviction"          "=" ENUM_VAL   -> cache_eviction
+           | "eviction"          "=" ENUM_VAL "|" ENUM_VAL -> cache_eviction_fallback
+           | "eviction"          "=" ENUM_VAL ":" ENUM_VAL "when" NAME COMP_OP NUMBER -> cache_eviction_cond
+           | "pin"               "=" int_list   -> cache_pin
+           | "frequency_decay"   "=" NUMBER     -> cache_lfu_decay
+           | "frequency_decay"   "=" NUMBER ":" NUMBER "when" NAME COMP_OP NUMBER -> cache_lfu_decay_cond
+           | "freq_threshold"    "=" NUMBER     -> cache_freq_threshold
+           | "freq_window"       "=" INT        -> cache_freq_window
+           | "score_ema_alpha"   "=" NUMBER     -> cache_score_ema_alpha
+           | "memory_threshold"  "=" NUMBER     -> cache_memory_threshold
+           | "memory_headroom"   "=" NUMBER     -> cache_memory_headroom
+           | "memory_budget_gb"  "=" NUMBER     -> cache_memory_budget
+           | "expert_size_gb"    "=" NUMBER     -> cache_expert_size
+           | "ttl"               "=" INT        -> cache_ttl
+
+// ── prefetch ───────────────────────────────────────────────────────
+prefetch_block: "prefetch" "{" prefetch_param+ "}"
+
+prefetch_param: "strategy"           "=" ENUM_VAL  -> prefetch_strategy
+              | "strategy"           "=" ENUM_VAL ":" ENUM_VAL "when" NAME COMP_OP NUMBER -> prefetch_strategy_cond
+              | "lookahead"          "=" INT        -> prefetch_lookahead
+              | "budget"             "=" INT        -> prefetch_budget
+              | "budget"             "=" INT ":" INT "when" NAME COMP_OP NUMBER -> prefetch_budget_cond
+              | "affinity_threshold" "=" NUMBER     -> prefetch_affinity_threshold
+              | "history_window"     "=" INT        -> prefetch_history_window
+
+// ── schedule ───────────────────────────────────────────────────────
+schedule_block: "schedule" "{" schedule_param+ "}"
+
+schedule_param: "mode"                  "=" ENUM_VAL  -> schedule_mode
+              | "offload_threshold_ms"  "=" NUMBER    -> schedule_cpu_threshold
+              | "overlap"               "=" BOOL_VAL  -> schedule_overlap
+              | "priority_routing"      "=" BOOL_VAL  -> schedule_priority_routing
+
+// ── monitor ────────────────────────────────────────────────────────
+monitor_block: "monitor" "{" monitor_param+ "}"
+
+monitor_param: "metrics"      "=" name_list       -> monitor_metrics
+             | "window"       "=" INT              -> monitor_window
+             | "log_interval" "=" INT              -> monitor_log_interval
+
+// ── adapt ────────────────────────────────────────────────────────────
+adapt_block: "adapt" "{" adapt_rule+ "}"
+
+adapt_rule: "when" NAME COMP_OP NUMBER "for" INT "accesses" "{" adapt_action "}" -> adapt_rule_windowed
+          | "when" NAME COMP_OP NUMBER "{" adapt_action "}"                      -> adapt_rule_instant
+
+adapt_action: NAME "=" ENUM_VAL     -> adapt_set_param
+            | NAME "=" NUMBER       -> adapt_set_number
+            | NAME "=" INT          -> adapt_set_int
+            | "trigger" ENUM_VAL    -> adapt_trigger
+
+COMP_OP: "<" | ">" | "<=" | ">=" | "!="
+
+// ── shared terminals & rules ───────────────────────────────────────
+int_list: "[" INT ("," INT)* "]"
+        | "[" "]"                                   -> empty_int_list
+
+name_list: "[" NAME ("," NAME)* "]"
+         | "[" "]"                                  -> empty_name_list
+
+ENUM_VAL: /[a-z_]+/
+BOOL_VAL: "true" | "false"
+NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+
+%import common.INT
+%import common.NUMBER
+%import common.WS
+%import common.SH_COMMENT
+
+%ignore WS
+%ignore SH_COMMENT
+%ignore /;/
