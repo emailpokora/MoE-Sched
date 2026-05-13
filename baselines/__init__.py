@@ -1,4 +1,4 @@
-"""Real system baselines for comparison (Phase 3).
+"""Real system baselines for comparison.
 
 This package wraps external MoE serving systems to extract comparable
 metrics (cache hit rate, throughput, latency) on identical workloads.

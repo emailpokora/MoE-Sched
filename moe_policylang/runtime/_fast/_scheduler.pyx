@@ -1,7 +1,7 @@
 # cython: boundscheck=False, wraparound=False, cdivision=True
 """Cython-accelerated scheduler implementations.
 
-Phase 2: Drop-in replacements for GPUOnlyScheduler, CPUFallbackScheduler,
+Drop-in replacements for GPUOnlyScheduler, CPUFallbackScheduler,
 and HybridScheduler.  Return ExecutionDevice values matching the Python API.
 """
 

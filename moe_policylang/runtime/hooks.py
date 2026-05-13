@@ -1,7 +1,6 @@
 """Runtime hook that wraps a CompiledPolicy and intercepts MoE layer forwards.
 
-This is the main Week 3 deliverable: the "code generator" side of the DSL.
-The compiler already assembles Cache/Prefetcher/Scheduler/Monitor components;
+The compiler assembles Cache/Prefetcher/Scheduler/Monitor components;
 the hook orchestrates them into a single callable that an inference engine
 invokes on every MoE layer's expert selection.
 

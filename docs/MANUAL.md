@@ -872,8 +872,8 @@ python setup_cython.py build_ext --inplace
 ```
 
 This provides:
-- **Phase 2**: Cython cache and scheduler components (`LRUCacheFast`, etc.)
-- **Phase 3**: Full Cython dispatch loop (`FastPolicyHook`)
+- **Component-level**: Cython cache and scheduler components (`LRUCacheFast`, etc.)
+- **Full dispatch loop**: Cython dispatch loop (`FastPolicyHook`)
 
 The selection is transparent — `build_hook()` automatically picks the fastest
 available implementation.

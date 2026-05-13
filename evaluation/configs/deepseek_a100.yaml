@@ -1,5 +1,5 @@
 # Experiment config: DeepSeek-V2-Lite on A100-80GB
-# Phase 4 — demonstrates DSL generalizes across model families
+# Demonstrates DSL generalizes across model families
 
 model:
   name: "deepseek-ai/DeepSeek-V2-Lite"

@@ -1,4 +1,4 @@
-"""Tests for Cython fast-path implementations (Phase 2).
+"""Tests for Cython fast-path implementations.
 
 Verifies that Cython-accelerated cache and scheduler produce identical
 results to their pure-Python counterparts.

@@ -1,12 +1,11 @@
 """Cython-accelerated fast paths for MoE-PolicyLang runtime components.
 
-Phase 2 of the conference paper plan. These modules provide drop-in
-replacements for the pure-Python cache and scheduler implementations
-with lower dispatch latency.
+These modules provide drop-in replacements for the pure-Python cache and
+scheduler implementations with lower dispatch latency (< 10 µs/layer).
 
-When built (via `python setup.py build_ext --inplace`), the fast paths
-are automatically used by the compiler. If not built, the system falls
-back to pure-Python implementations transparently.
+When built (via `python setup_cython.py build_ext --inplace`), the fast
+paths are automatically used by the compiler. If not built, the system
+falls back to pure-Python implementations transparently.
 """
 
 FAST_PATH_AVAILABLE = False

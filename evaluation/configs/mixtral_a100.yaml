@@ -1,5 +1,5 @@
 # Experiment config: Mixtral-8x7B on A100-80GB
-# Phase 4 — real hardware evaluation
+# Real hardware evaluation
 
 model:
   name: "mistralai/Mixtral-8x7B-Instruct-v0.1"

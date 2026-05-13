@@ -54,7 +54,7 @@ def install_policy_hook(
         The list of layer indices that were successfully instrumented.
 
     Notes:
-        * This function is a *scaffold* for Week 3.  Full integration requires
+        * This function provides the model instrumentation scaffold.  Full integration requires
           model-specific router-output extraction (Mixtral exposes
           ``router_logits``; Qwen2MoE exposes ``expert_mask`` + ``experts``).
         * The scaffold validates that the model has iterable layers, locates
@@ -122,7 +122,7 @@ def _wrap_moe_forward(moe_module: Any, hook: PolicyHook, layer_idx: int) -> None
       4. Return the original output unchanged.
 
     Full router-output extraction is model-specific and is left as follow-up
-    work for Week 4 integration polish.
+    work for integration polish.
     """
     original_forward = moe_module.forward
 

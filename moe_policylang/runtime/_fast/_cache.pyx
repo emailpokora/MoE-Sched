@@ -1,7 +1,7 @@
 # cython: boundscheck=False, wraparound=False, cdivision=True
 """Cython-accelerated cache implementations.
 
-Phase 2: Drop-in replacements for LRUCache and LFUCache with C-typed
+Drop-in replacements for LRUCache and LFUCache with C-typed
 operations for minimal dispatch overhead.  These classes maintain the same
 API as their Python counterparts so they are transparent drop-ins.
 """

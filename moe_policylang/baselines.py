@@ -1,13 +1,9 @@
 """Hand-coded reference implementations used for DSL correctness verification.
 
-Week 3's proposal deliverable requires showing that a DSL-generated LRU
-policy produces *identical* dispatch decisions to a hand-coded LRU baseline
-implemented without MoE-PolicyLang machinery.
-
-The reference classes in this module deliberately **do not** import from
-``moe_policylang.runtime`` — they are self-contained so that passing the
-equivalence test provides meaningful evidence that the DSL compiler+hook
-pipeline preserves semantics.
+These provide independent LRU/LFU implementations that deliberately
+**do not** import from ``moe_policylang.runtime`` — proving that the DSL
+compiler+hook pipeline produces *identical* dispatch decisions to hand-coded
+logic.
 """
 
 from __future__ import annotations

@@ -80,7 +80,7 @@ VALIDATION_RULES: list[tuple[str, callable]] = [
             or ir.prefetch.strategy != PrefetchStrategy.NONE
         ),
     ),
-    # -- Eviction triggers (Week 4) --
+    # -- Eviction triggers --
     (
         "memory_threshold must be in (0, 1]",
         lambda ir: (

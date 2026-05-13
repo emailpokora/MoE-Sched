@@ -1,5 +1,5 @@
 # Experiment config: Mixtral-8x7B on RTX 4090-24GB (memory-constrained)
-# Phase 4 — demonstrates DSL adapts to different GPU budgets
+# Demonstrates DSL adapts to different GPU budgets
 
 model:
   name: "mistralai/Mixtral-8x7B-Instruct-v0.1"

@@ -1,4 +1,4 @@
-"""Policy composition tests — Week 4 deliverable.
+"""Policy composition tests.
 
 The proposal requires testing composition across the three orthogonal
 policy dimensions (cache × prefetch × schedule) plus the new eviction
@@ -43,7 +43,7 @@ def _run(hook, *, selector=None, num_tokens=30, num_layers=12, num_experts=32):
 # ---------------------------------------------------------------------------
 
 class TestProposalHeadlineComposition:
-    """The exact composition called out in the proposal's Week 4 description:
+    """The exact composition for multi-dimensional policy testing:
 
     > Test policy composition (e.g., frequency-caching + affinity-prefetching
     > + memory-pressure-eviction).

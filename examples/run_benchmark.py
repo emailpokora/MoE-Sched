@@ -43,7 +43,7 @@ def main():
 
     # ---- Run benchmarks ----
     print("=" * 70)
-    print("MoE-PolicyLang Evaluation Suite — Week 5")
+    print("MoE-PolicyLang Evaluation Suite")
     print("=" * 70)
     print()
 

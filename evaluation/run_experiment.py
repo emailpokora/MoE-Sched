@@ -1,8 +1,6 @@
 """Run a full evaluation experiment from a YAML config.
 
-Phase 4: Orchestrates real hardware experiments.
-
-Status: STUB — implement after Phases 1-3 are complete.
+Orchestrates real hardware experiments from declarative YAML configuration.
 
 Usage (planned):
     python evaluation/run_experiment.py --config evaluation/configs/mixtral_a100.yaml
@@ -30,7 +28,7 @@ def load_config(path: str) -> Dict[str, Any]:
 def run_experiment(config: Dict[str, Any]) -> None:
     """Execute a full experiment from config.
 
-    TODO (Phase 4):
+    TODO:
         1. Load model with HuggingFace
         2. Install MoE-PolicyLang hooks
         3. For each policy × workload:
@@ -41,8 +39,8 @@ def run_experiment(config: Dict[str, Any]) -> None:
         4. Save results to output_dir
     """
     raise NotImplementedError(
-        "Phase 4 not yet implemented. "
-        "See conference-paper/PROGRESS.md for status."
+        "Full experiment orchestration not yet implemented. "
+        "Use scripts/run_dsl_demo.py or scripts/run_constrained_e2e.py instead."
     )
 
 

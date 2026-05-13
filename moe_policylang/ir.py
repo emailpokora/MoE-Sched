@@ -45,7 +45,7 @@ class CacheIR:
     freq_threshold: float = 0.05
     freq_window: int = 100
     score_ema_alpha: float = 0.3
-    # -- Eviction triggers (Week 4) ----------------------------------------
+    # -- Eviction triggers ----------------------------------------
     # Memory pressure: evict down to ``memory_headroom`` when estimated GPU
     # usage (cache_size * expert_size_gb / gpu_budget_gb) >= threshold.
     memory_threshold: Optional[float] = None   # in [0, 1], e.g. 0.9

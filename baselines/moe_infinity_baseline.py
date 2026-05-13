@@ -1,8 +1,6 @@
 """MoE-Infinity baseline: sparsity-aware expert caching.
 
-Phase 3: Run identical prompts through MoE-Infinity and extract metrics.
-
-Status: STUB — implement after Phase 1 + 2.
+Run identical prompts through MoE-Infinity and extract metrics.
 
 Requirements:
     pip install moe-infinity  (or clone from GitHub)
@@ -43,13 +41,13 @@ def run_moe_infinity_baseline(
 ) -> MoEInfinityResult:
     """Run MoE-Infinity inference and collect baseline metrics.
 
-    TODO (Phase 3):
+    TODO:
         - Initialize MoE-Infinity with specified model
         - Run prompts
         - Extract internal cache hit statistics
         - Measure throughput and latency
     """
     raise NotImplementedError(
-        "Phase 3 not yet implemented. "
+        "Baseline not yet implemented. "
         "See conference-paper/PROGRESS.md for status."
     )

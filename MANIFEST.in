@@ -1,0 +1,26 @@
+# Include core package data
+include LICENSE
+include README.md
+include pyproject.toml
+recursive-include moe_policylang *.py *.lark *.pyx
+
+# Exclude everything else from sdist
+prune paper
+prune presentation.md
+prune traces
+prune results
+prune evaluation
+prune baselines
+prune notebooks
+prune scripts
+prune tests
+prune docs
+prune examples
+prune .windsurf
+prune .pytest_cache
+
+global-exclude *.c
+global-exclude *.pyd
+global-exclude *.so
+global-exclude __pycache__
+global-exclude *.pyc

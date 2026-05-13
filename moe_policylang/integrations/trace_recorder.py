@@ -1,12 +1,10 @@
 """Record real expert activation traces from HuggingFace MoE models.
 
-Phase 1: Captures per-token, per-layer expert selections from real model
-inference and saves them as .jsonl files for reproducible replay in
-benchmarks and evaluation.
+Captures per-token, per-layer expert selections from real model inference
+and saves them as .jsonl files for reproducible replay in benchmarks and
+evaluation.
 
-Status: STUB — implement as part of Phase 1.
-
-Usage (planned):
+Usage:
     from moe_policylang.integrations.trace_recorder import record_trace
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -99,13 +97,9 @@ def record_trace(
 ) -> TraceRecording:
     """Record expert activation traces from a real HuggingFace MoE model.
 
-    TODO (Phase 1):
-        - Hook into model's MoE layers to capture router outputs
-        - Run inference on each prompt
-        - Collect per-token, per-layer expert selections
-        - Optionally save to output_path
+    Not yet implemented — use pre-recorded traces from traces/ instead.
     """
     raise NotImplementedError(
-        "Phase 1 not yet implemented. "
-        "See conference-paper/PROGRESS.md for status."
+        "Live trace recording not yet implemented. "
+        "Use pre-recorded traces from the traces/ directory instead."
     )

@@ -1,4 +1,4 @@
-"""Week 3 correctness deliverable:
+"""DSL correctness verification:
    DSL-generated policies produce identical dispatch to hand-coded baselines.
 
 The proposal requires: "Verify correctness: DSL-generated LRU policy produces
@@ -85,7 +85,7 @@ LRU_CAPACITIES = [2, 4, 8, 16]
 
 
 class TestDSLLRUvsHandCoded:
-    """Primary Week 3 correctness test."""
+    """Primary DSL correctness test."""
 
     @pytest.mark.parametrize("capacity", LRU_CAPACITIES)
     def test_uniform_workload(self, capacity):
@@ -186,7 +186,7 @@ class TestDSLLRUCpuFallbackVsHandCoded:
 
 class TestTextDSLEquivalence:
     """Parsing a .moe file should yield the same behavior as building the IR
-    in Python.  This chains Week 2 (parser) and Week 3 (hook) together."""
+    in Python.  This chains the parser and hook together."""
 
     def test_parsed_policy_matches_programmatic(self):
         parsed = parse_policy("""

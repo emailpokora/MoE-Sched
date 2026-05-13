@@ -1,11 +1,11 @@
 version 0.6
-# Phase 5.4: FineMoE's fine-grained score-aware offloading in MoE-PolicyLang DSL
+# FineMoE's fine-grained score-aware offloading in MoE-PolicyLang DSL
 # FineMoE uses score-based caching with affinity prefetch and memory triggers.
 #
 # Reference: Yu et al. "FineMoE" EuroSys 2026
 # Estimated hand-coded equivalent: ~350 LOC (Python + C++)
 #
-# Status: STUB — verify against FineMoE source during Phase 5
+# Status: Based on FineMoE paper
 
 policy finemoe_score {
     cache {

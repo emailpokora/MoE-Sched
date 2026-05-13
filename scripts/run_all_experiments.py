@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
-"""Orchestrate the full evaluation suite (Phase 4).
+"""Orchestrate the full evaluation suite.
 
 Runs all experiment configs, all baselines, and generates comparison tables.
 
@@ -30,7 +30,7 @@ def main():
                         help="Skip MoE-PolicyLang policy runs")
     args = parser.parse_args()
 
-    print("Phase 4: Full Evaluation Suite — NOT YET IMPLEMENTED")
+    print("Full Evaluation Suite — NOT YET IMPLEMENTED")
     print()
     print("This script will:")
     print("  1. Run all MoE-PolicyLang policies × workloads × hardware configs")
@@ -38,7 +38,7 @@ def main():
     print("  3. Generate comparison tables and figures")
     print("  4. Export results to JSON for paper figures")
     print()
-    print("See PROGRESS.md for status.")
+    print("See README.md for status.")
     sys.exit(1)
 
 

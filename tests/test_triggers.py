@@ -1,4 +1,4 @@
-"""Tests for Week 4 primitives: eviction triggers + LookaheadPrefetcher."""
+"""Tests for eviction triggers + LookaheadPrefetcher."""
 
 import pytest
 

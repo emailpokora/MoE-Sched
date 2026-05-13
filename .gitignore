@@ -7,18 +7,16 @@ dist/
 build/
 *.so
 
-# Cython
-*.c
-!moe_policylang/runtime/_fast/*.pyx
+# Cython generated files
+moe_policylang/runtime/_fast/*.c
+moe_policylang/runtime/_fast/*.pyd
 
 # Traces (large, regenerable)
 traces/*.jsonl
 traces/*.json
 
 # Results (regenerable)
-results/*.json
-results/*.png
-results.md
+results/
 
 # LaTeX build artifacts
 paper/*.aux
@@ -38,6 +36,9 @@ paper/*.fdb_latexmk
 
 # pytest
 .pytest_cache/
+
+# Presentation (personal)
+presentation.md
 
 # Packaged archive (regenerable)
 moe_policylang.zip

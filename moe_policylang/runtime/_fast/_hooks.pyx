@@ -2,8 +2,8 @@
 """Cython-accelerated dispatch loop.
 
 Moves the entire PolicyHook.on_layer hot path into C-level code,
-eliminating per-expert Python call overhead.  This is the Phase 3
-fast path — the previous Phase 2 only accelerated individual
+eliminating per-expert Python call overhead.  This is the optimized
+fast path — the component-level acceleration only accelerated individual
 cache/scheduler components while the outer loop stayed in Python.
 
 The fast hook maintains the same API as PolicyHook and is a transparent

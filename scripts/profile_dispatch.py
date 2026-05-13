@@ -1,10 +1,8 @@
 # Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
 """Profile MoE-PolicyLang dispatch overhead on real hardware.
 
-Phase 2: Measures per-layer dispatch time for each policy to verify
+Measures per-layer dispatch time for each policy to verify
 the <5% overhead claim.
-
-Status: STUB — implement after Cython fast path (Phase 2).
 
 Usage (planned):
     python scripts/profile_dispatch.py --policy lru_basic --iterations 10000
@@ -25,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 def profile_policy(policy_name: str, iterations: int = 10000) -> dict:
     """Profile a single policy's dispatch overhead.
 
-    TODO (Phase 2):
+    TODO:
         1. Compile the DSL policy
         2. Build hook
         3. Run dispatch loop (without real model) for N iterations
@@ -33,7 +31,7 @@ def profile_policy(policy_name: str, iterations: int = 10000) -> dict:
         5. Compare pure-Python vs Cython fast path
         6. Report: mean, p50, p99, max in microseconds
     """
-    raise NotImplementedError("Phase 2 not yet implemented")
+    raise NotImplementedError("Dispatch profiling not yet implemented")
 
 
 def main():
@@ -46,8 +44,8 @@ def main():
                         help="Compare Python vs Cython implementations")
     args = parser.parse_args()
 
-    print("Phase 2: Dispatch Profiling — NOT YET IMPLEMENTED")
-    print("See PROGRESS.md for status.")
+    print("Dispatch Profiling — NOT YET IMPLEMENTED")
+    print("See README.md for status.")
     sys.exit(1)
 
 

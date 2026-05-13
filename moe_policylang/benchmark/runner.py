@@ -103,7 +103,7 @@ def main():
     args = ap.parse_args()
 
     print("=" * 70)
-    print("MoE-PolicyLang Benchmark Suite — Week 5 Evaluation")
+    print("MoE-PolicyLang Benchmark Suite")
     print("=" * 70)
 
     results = run_all(capacity=args.capacity)

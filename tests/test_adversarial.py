@@ -1,4 +1,4 @@
-"""Adversarial workload tests — Week 4 deliverable.
+"""Adversarial workload tests.
 
 The proposal mandates debugging three edge cases:
 

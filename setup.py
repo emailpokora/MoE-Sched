@@ -1,13 +1,11 @@
 # Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
-"""Build configuration for Cython extensions (Phase 2).
+"""Build configuration for Cython extensions.
 
 Usage:
     python setup.py build_ext --inplace
 
 This compiles the Cython fast-path modules in moe_policylang/runtime/_fast/
-into native extension modules.
-
-Status: STUB — activate after Phase 2 .pyx files are implemented.
+into native extension modules for reduced dispatch latency.
 """
 
 from setuptools import setup, find_packages

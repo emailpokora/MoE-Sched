@@ -1,9 +1,7 @@
 """vLLM baseline: measure expert caching performance under vLLM's default policy.
 
-Phase 3: Run identical prompts through vLLM with Mixtral and extract
+Run identical prompts through vLLM with Mixtral and extract
 cache hit rates, throughput, and latency for comparison.
-
-Status: STUB — implement after Phase 1 + 2.
 
 Requirements:
     pip install vllm
@@ -42,13 +40,13 @@ def run_vllm_baseline(
 ) -> VLLMResult:
     """Run vLLM inference and collect baseline metrics.
 
-    TODO (Phase 3):
+    TODO:
         - Initialize vLLM LLM engine with specified model
         - Run prompts through the engine
         - Measure throughput and latency
         - Extract GPU memory usage
     """
     raise NotImplementedError(
-        "Phase 3 not yet implemented. "
+        "Baseline not yet implemented. "
         "See conference-paper/PROGRESS.md for status."
     )
