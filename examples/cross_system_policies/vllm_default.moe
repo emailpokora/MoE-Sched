@@ -1,5 +1,5 @@
 version 0.6
-# Phase 5.4: vLLM's default expert caching policy expressed in MoE-Sched DSL
+# Phase 5.4: vLLM's default expert caching policy expressed in MoE-PolicyLang DSL
 # vLLM uses simple LRU eviction with GPU-only execution.
 #
 # Reference: vLLM source, model_executor/layers/fused_moe

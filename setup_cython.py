@@ -1,10 +1,10 @@
 # Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
-"""Build Cython fast-path extensions for MoE-Sched.
+"""Build Cython fast-path extensions for MoE-PolicyLang.
 
 Usage:
     python setup_cython.py build_ext --inplace
 
-This compiles the .pyx files in moe_sched/runtime/_fast/ into C extensions
+This compiles the .pyx files in moe_policylang/runtime/_fast/ into C extensions
 that are automatically used by the compiler when FAST_PATH_AVAILABLE is True.
 """
 
@@ -13,9 +13,9 @@ from Cython.Build import cythonize
 
 extensions = cythonize(
     [
-        "moe_sched/runtime/_fast/_cache.pyx",
-        "moe_sched/runtime/_fast/_scheduler.pyx",
-        "moe_sched/runtime/_fast/_hooks.pyx",
+        "moe_policylang/runtime/_fast/_cache.pyx",
+        "moe_policylang/runtime/_fast/_scheduler.pyx",
+        "moe_policylang/runtime/_fast/_hooks.pyx",
     ],
     compiler_directives={
         "boundscheck": False,
@@ -26,7 +26,7 @@ extensions = cythonize(
 )
 
 setup(
-    name="moe_sched_fast",
+    name="moe_policylang_fast",
     ext_modules=extensions,
     packages=[],
 )

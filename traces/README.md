@@ -1,6 +1,6 @@
 # Expert Activation Traces
 
-> Part of [MoE-Sched](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
+> Part of [MoE-PolicyLang](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
 
 This directory stores recorded expert activation traces and experiment results.
 

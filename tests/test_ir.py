@@ -2,7 +2,7 @@
 
 import pytest
 
-from moe_sched.ir import (
+from moe_policylang.ir import (
     CacheIR,
     EvictionPolicy,
     MonitorIR,

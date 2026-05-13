@@ -32,7 +32,7 @@ def run_experiment(config: Dict[str, Any]) -> None:
 
     TODO (Phase 4):
         1. Load model with HuggingFace
-        2. Install MoE-Sched hooks
+        2. Install MoE-PolicyLang hooks
         3. For each policy × workload:
             a. Compile DSL policy
             b. Build hook
@@ -47,7 +47,7 @@ def run_experiment(config: Dict[str, Any]) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run MoE-Sched evaluation experiment")
+    parser = argparse.ArgumentParser(description="Run MoE-PolicyLang evaluation experiment")
     parser.add_argument("--config", required=True, help="Path to YAML config file")
     parser.add_argument("--dry-run", action="store_true", help="Print config and exit")
     args = parser.parse_args()

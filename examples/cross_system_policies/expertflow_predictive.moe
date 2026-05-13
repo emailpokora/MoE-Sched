@@ -1,5 +1,5 @@
 version 0.6
-# Phase 5.4: ExpertFlow's predictive caching in MoE-Sched DSL
+# Phase 5.4: ExpertFlow's predictive caching in MoE-PolicyLang DSL
 # ExpertFlow uses score-based eviction with lookahead prefetching.
 #
 # Reference: He et al. "ExpertFlow" arXiv:2410.17954

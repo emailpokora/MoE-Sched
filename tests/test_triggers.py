@@ -2,7 +2,7 @@
 
 import pytest
 
-from moe_sched import (
+from moe_policylang import (
     CacheIR,
     EvictionPolicy,
     PolicyIR,
@@ -11,9 +11,9 @@ from moe_sched import (
     build_hook,
     compile_policy,
 )
-from moe_sched.runtime.cache import LRUCache
-from moe_sched.runtime.prefetch import LookaheadPrefetcher
-from moe_sched.runtime.triggers import (
+from moe_policylang.runtime.cache import LRUCache
+from moe_policylang.runtime.prefetch import LookaheadPrefetcher
+from moe_policylang.runtime.triggers import (
     MemoryPressureTrigger,
     TriggerSet,
     TTLTrigger,

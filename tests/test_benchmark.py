@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 
-from moe_sched.benchmark.workloads import (
+from moe_policylang.benchmark.workloads import (
     ALL_WORKLOADS,
     Workload,
     short_prompt_workload,
@@ -20,15 +20,15 @@ from moe_sched.benchmark.workloads import (
     mixed_batch_workload,
     bursty_workload,
 )
-from moe_sched.benchmark.harness import BenchmarkHarness
-from moe_sched.benchmark.metrics import MetricsSummary, compute_metrics
-from moe_sched.benchmark.policies import get_dsl_policies, BASELINES
-from moe_sched.benchmark.expressiveness import (
+from moe_policylang.benchmark.harness import BenchmarkHarness
+from moe_policylang.benchmark.metrics import MetricsSummary, compute_metrics
+from moe_policylang.benchmark.policies import get_dsl_policies, BASELINES
+from moe_policylang.benchmark.expressiveness import (
     analyse_dsl_api_policies,
     format_expressiveness_table,
 )
-from moe_sched.benchmark.runner import run_all, format_table
-from moe_sched.benchmark.visualize import (
+from moe_policylang.benchmark.runner import run_all, format_table
+from moe_policylang.benchmark.visualize import (
     hit_rate_table,
     throughput_table,
     latency_table,
@@ -137,7 +137,7 @@ class TestHarness:
 
     def test_run_baseline(self):
         """Baseline produces valid metrics."""
-        from moe_sched.baselines import HandCodedLRU
+        from moe_policylang.baselines import HandCodedLRU
         harness = BenchmarkHarness(warmup_tokens=2)
         wl = self._small_workload()
         result = harness.run_baseline(

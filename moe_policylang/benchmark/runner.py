@@ -1,7 +1,7 @@
 """Benchmark runner: executes all policies × workloads and collects results.
 
 Can be run as:
-    python -m moe_sched.benchmark.runner [--output results.json]
+    python -m moe_policylang.benchmark.runner [--output results.json]
 """
 
 from __future__ import annotations
@@ -13,10 +13,10 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import List
 
-from moe_sched.benchmark.harness import BenchmarkHarness, BenchmarkResult
-from moe_sched.benchmark.metrics import MetricsSummary
-from moe_sched.benchmark.policies import BASELINES, get_dsl_policies
-from moe_sched.benchmark.workloads import ALL_WORKLOADS, Workload
+from moe_policylang.benchmark.harness import BenchmarkHarness, BenchmarkResult
+from moe_policylang.benchmark.metrics import MetricsSummary
+from moe_policylang.benchmark.policies import BASELINES, get_dsl_policies
+from moe_policylang.benchmark.workloads import ALL_WORKLOADS, Workload
 
 
 def run_all(
@@ -97,13 +97,13 @@ def results_to_dict(results: List[MetricsSummary]) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def main():
-    ap = argparse.ArgumentParser(description="MoE-Sched benchmark runner")
+    ap = argparse.ArgumentParser(description="MoE-PolicyLang benchmark runner")
     ap.add_argument("--output", "-o", type=Path, default=None, help="Output JSON file")
     ap.add_argument("--capacity", type=int, default=16, help="Cache capacity for all policies")
     args = ap.parse_args()
 
     print("=" * 70)
-    print("MoE-Sched Benchmark Suite — Week 5 Evaluation")
+    print("MoE-PolicyLang Benchmark Suite — Week 5 Evaluation")
     print("=" * 70)
 
     results = run_all(capacity=args.capacity)

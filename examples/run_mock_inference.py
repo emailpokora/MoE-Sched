@@ -12,8 +12,8 @@ import argparse
 import json
 from pathlib import Path
 
-from moe_sched import build_hook, compile_policy, parse_file
-from moe_sched.integrations.mock_moe import MockMoEModel, skewed_selector
+from moe_policylang import build_hook, compile_policy, parse_file
+from moe_policylang.integrations.mock_moe import MockMoEModel, skewed_selector
 
 
 def main():

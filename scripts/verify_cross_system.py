@@ -6,9 +6,9 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from moe_sched.parser import parse_file
-from moe_sched.compiler import compile_policy
-from moe_sched.runtime.hooks import build_hook
+from moe_policylang.parser import parse_file
+from moe_policylang.compiler import compile_policy
+from moe_policylang.runtime.hooks import build_hook
 
 EXAMPLES_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),

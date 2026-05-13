@@ -16,7 +16,7 @@ It also reports which experts were issued as async prefetches for the next
 layer and records per-access monitor samples.
 
 This module is **pure Python and framework-agnostic**.  The actual HuggingFace
-glue code in ``moe_sched.integrations.huggingface`` converts a DispatchPlan
+glue code in ``moe_policylang.integrations.huggingface`` converts a DispatchPlan
 into torch tensor placement calls.
 """
 
@@ -25,8 +25,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Sequence
 
-from moe_sched.compiler import CompiledPolicy
-from moe_sched.runtime.scheduler import ExecutionDevice
+from moe_policylang.compiler import CompiledPolicy
+from moe_policylang.runtime.scheduler import ExecutionDevice
 
 
 # ---------------------------------------------------------------------------
@@ -88,7 +88,7 @@ class PolicyHook:
 
     A hook is the glue that binds the four compiled components (cache,
     prefetcher, scheduler, monitor) into a single per-layer callback.  It is
-    the *code-generated output* of the MoE-Sched compiler: whereas
+    the *code-generated output* of the MoE-PolicyLang compiler: whereas
     ``CompiledPolicy`` is a *bag* of components, ``PolicyHook`` defines their
     *interaction protocol*.
     """
@@ -259,25 +259,25 @@ def build_hook(compiled: CompiledPolicy) -> PolicyHook | "AdaptiveHook":
     """Factory: code-generate a runtime hook from a CompiledPolicy.
 
     If the policy contains ``adapt`` rules, the hook is wrapped in an
-    :class:`~moe_sched.adaptive.AdaptiveHook` that monitors metrics and
+    :class:`~moe_policylang.adaptive.AdaptiveHook` that monitors metrics and
     dynamically adjusts policy parameters at runtime.
 
     When the full Cython fast-path hook is available (``_hooks.pyx`` built),
     a :class:`FastPolicyHook` is used instead of the Python ``PolicyHook``
     for maximum dispatch throughput.
     """
-    from moe_sched.runtime._fast import FAST_HOOK_AVAILABLE
+    from moe_policylang.runtime._fast import FAST_HOOK_AVAILABLE
 
     if FAST_HOOK_AVAILABLE:
-        from moe_sched.runtime._fast._hooks import FastPolicyHook
+        from moe_policylang.runtime._fast._hooks import FastPolicyHook
         hook = FastPolicyHook(compiled)
     else:
         hook = PolicyHook(compiled)
 
     adapt_ir = getattr(compiled, "_adapt_ir", None)
     if adapt_ir is not None and adapt_ir.rules:
-        from moe_sched.adaptive import AdaptiveHook
-        from moe_sched.compiler import compile_policy
+        from moe_policylang.adaptive import AdaptiveHook
+        from moe_policylang.compiler import compile_policy
 
         policy_ir = getattr(compiled, "_policy_ir", None)
         hook = AdaptiveHook(hook, adapt_ir, policy_ir, compile_policy)

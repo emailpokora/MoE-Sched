@@ -1,9 +1,9 @@
-"""MoE-Sched: A DSL for Mixture-of-Experts scheduling policies."""
+"""MoE-PolicyLang: A DSL for Mixture-of-Experts scheduling policies."""
 
 __version__ = "1.0.0-dev"
 
-from moe_sched.adaptive import AdaptAction, AdaptCondition, AdaptIR, AdaptRule
-from moe_sched.ir import (
+from moe_policylang.adaptive import AdaptAction, AdaptCondition, AdaptIR, AdaptRule
+from moe_policylang.ir import (
     EvictionPolicy,
     PrefetchStrategy,
     ScheduleMode,
@@ -13,14 +13,14 @@ from moe_sched.ir import (
     MonitorIR,
     PolicyIR,
 )
-from moe_sched.dsl import MoESched
-from moe_sched.validator import validate_policy
-from moe_sched.compiler import compile_policy
-from moe_sched.errors import DSLError, ValidationError
-from moe_sched.parser import parse_policies, parse_policy, parse_file
-from moe_sched.runtime.hooks import PolicyHook, DispatchPlan, ExpertDispatch, build_hook
-from moe_sched.integrations import attach
-from moe_sched.auto import auto_policies, auto_attach
+from moe_policylang.dsl import MoEPolicyLang
+from moe_policylang.validator import validate_policy
+from moe_policylang.compiler import compile_policy
+from moe_policylang.errors import DSLError, ValidationError
+from moe_policylang.parser import parse_policies, parse_policy, parse_file
+from moe_policylang.runtime.hooks import PolicyHook, DispatchPlan, ExpertDispatch, build_hook
+from moe_policylang.integrations import attach
+from moe_policylang.auto import auto_policies, auto_attach
 
 __all__ = [
     "__version__",
@@ -34,7 +34,7 @@ __all__ = [
     "ScheduleIR",
     "MonitorIR",
     "PolicyIR",
-    "MoESched",
+    "MoEPolicyLang",
     "validate_policy",
     "compile_policy",
     "parse_policies",

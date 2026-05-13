@@ -9,7 +9,7 @@ the cache is full and a new expert needs to be inserted.  Several systems
   * **TTL / staleness** — evict any expert that has not been accessed for
     a fixed number of steps.
 
-These are expressed in MoE-Sched as *triggers* that wrap a base cache.
+These are expressed in MoE-PolicyLang as *triggers* that wrap a base cache.
 They do not change the cache's insertion semantics; they only force
 additional evictions between accesses.
 
@@ -146,7 +146,7 @@ class TTLTrigger:
     def _evict_specific(cache: _CacheProtocol, expert_id: int) -> bool:
         """Remove ``expert_id`` from the cache if present.  Uses the cache's
         internal storage — works for the four cache types shipped with
-        MoE-Sched (LRU ordered dict, LFU/Score freq/score dicts, FreqThreshold set)."""
+        MoE-PolicyLang (LRU ordered dict, LFU/Score freq/score dicts, FreqThreshold set)."""
         for attr in ("cache", "freq", "scores"):
             store = getattr(cache, attr, None)
             if isinstance(store, dict) and expert_id in store:

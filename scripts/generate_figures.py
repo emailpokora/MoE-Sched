@@ -14,9 +14,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from moe_sched.compiler import compile_policy
-from moe_sched.runtime.hooks import build_hook
-from moe_sched.dsl import MoESched
+from moe_policylang.compiler import compile_policy
+from moe_policylang.runtime.hooks import build_hook
+from moe_policylang.dsl import MoEPolicyLang
 
 TRACES_DIR = os.path.join(ROOT, "traces")
 FIG_DIR = os.path.join(ROOT, "paper", "figures")
@@ -43,7 +43,7 @@ def _run_capacity_sweep(trace_data, caps, eviction="lru"):
     """Return list of hit rates for given capacities."""
     hit_rates = []
     for cap in caps:
-        sched = MoESched()
+        sched = MoEPolicyLang()
         kw = dict(capacity=cap, eviction=eviction)
         if eviction == "lfu":
             kw["lfu_decay"] = 0.9
@@ -108,7 +108,7 @@ def fig_rolling_hit_rate():
     for ax, (tname, tdata) in zip(axes, traces.items()):
         label = DISPLAY.get(tname, tname)
         for ev in ["lru", "lfu"]:
-            sched = MoESched()
+            sched = MoEPolicyLang()
             kw = dict(capacity=cap, eviction=ev)
             if ev == "lfu":
                 kw["lfu_decay"] = 0.9
@@ -172,7 +172,7 @@ def fig_ablation():
         label = DISPLAY.get(tname, tname)
         abl_labels, abl_hrs = [], []
         for clabel, ckw, pkw, skw in configs:
-            sched = MoESched()
+            sched = MoEPolicyLang()
             @sched.policy
             def _p(p, _c=ckw, _pk=pkw, _s=skw):
                 p.cache(**_c)

@@ -1,10 +1,10 @@
-"""DSL frontend: decorator and builder APIs for defining MoE-Sched policies."""
+"""DSL frontend: decorator and builder APIs for defining MoE-PolicyLang policies."""
 
 from __future__ import annotations
 
-from moe_sched.adaptive import AdaptIR, AdaptRule
-from moe_sched.errors import DSLError
-from moe_sched.ir import (
+from moe_policylang.adaptive import AdaptIR, AdaptRule
+from moe_policylang.errors import DSLError
+from moe_policylang.ir import (
     CacheIR,
     EvictionPolicy,
     MonitorIR,
@@ -14,7 +14,7 @@ from moe_sched.ir import (
     ScheduleIR,
     ScheduleMode,
 )
-from moe_sched.validator import validate_policy
+from moe_policylang.validator import validate_policy
 
 
 # ---------------------------------------------------------------------------
@@ -123,7 +123,7 @@ class PolicyBuilder:
         """Define adaptive rules that dynamically adjust the policy.
 
         Args:
-            rules: List of :class:`~moe_sched.adaptive.AdaptRule` objects.
+            rules: List of :class:`~moe_policylang.adaptive.AdaptRule` objects.
         """
         if self._adapt is not None:
             raise DSLError("Duplicate adapt() block in policy definition")
@@ -185,8 +185,8 @@ class FluentPolicyBuilder:
 # Main framework object
 # ---------------------------------------------------------------------------
 
-class MoESched:
-    """Entry point for the MoE-Sched DSL."""
+class MoEPolicyLang:
+    """Entry point for the MoE-PolicyLang DSL."""
 
     def __init__(self) -> None:
         self.policies: dict[str, PolicyIR] = {}

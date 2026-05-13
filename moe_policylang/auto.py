@@ -5,13 +5,13 @@ memory to generate a set of sensible DSL policies — or a single
 recommended one.
 
 Usage:
-    import moe_sched
+    import moe_policylang
 
     # Generate policies tuned to this model + GPU
-    policies = moe_sched.auto_policies(model)
+    policies = moe_policylang.auto_policies(model)
 
     # Or just attach the best one directly
-    mgr = moe_sched.auto_attach(model)
+    mgr = moe_policylang.auto_attach(model)
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ def auto_policies(model: "nn.Module", gpu_device: int = 0) -> dict[str, str]:
     Returns:
         Dict mapping policy name to DSL source string.
     """
-    from moe_sched.integrations.accessors import auto_accessor
+    from moe_policylang.integrations.accessors import auto_accessor
 
     accessor = auto_accessor(model)
     n = accessor.num_experts
@@ -114,7 +114,7 @@ def auto_attach(model: "nn.Module", strategy: str = "balanced", gpu_device: int 
     Returns:
         WeightPlacementManager with the auto-generated policy attached.
     """
-    from moe_sched.integrations import attach
+    from moe_policylang.integrations import attach
 
     policies = auto_policies(model, gpu_device=gpu_device)
     if strategy not in policies:

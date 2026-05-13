@@ -2,10 +2,10 @@
 
 Week 3's proposal deliverable requires showing that a DSL-generated LRU
 policy produces *identical* dispatch decisions to a hand-coded LRU baseline
-implemented without MoE-Sched machinery.
+implemented without MoE-PolicyLang machinery.
 
 The reference classes in this module deliberately **do not** import from
-``moe_sched.runtime`` — they are self-contained so that passing the
+``moe_policylang.runtime`` — they are self-contained so that passing the
 equivalence test provides meaningful evidence that the DSL compiler+hook
 pipeline preserves semantics.
 """
@@ -39,7 +39,7 @@ class RefStats:
 class HandCodedLRU:
     """Straight-line LRU cache + GPU-only scheduler, no prefetch.
 
-    Mirrors the behavior of a MoE-Sched policy built with:
+    Mirrors the behavior of a MoE-PolicyLang policy built with:
         cache(capacity=N, eviction=LRU)
         schedule(mode=GPU_ONLY)
 

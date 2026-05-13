@@ -1,5 +1,5 @@
 [project]
-name = "moe-sched"
+name = "moe-policylang"
 version = "1.0.0"
 description = "A domain-specific language for Mixture-of-Experts scheduling policies"
 authors = [{name = "Jesse Pokora"}]
@@ -27,13 +27,13 @@ eval = [
     # transitive CVE pin
     "pillow>=12.2.0",
 ]
-all = ["moe-sched[dev,gpu,cython,eval]"]
+all = ["moe-policylang[dev,gpu,cython,eval]"]
 
 [project.scripts]
-moe-sched = "moe_sched.cli:main"
+moe-policylang = "moe_policylang.cli:main"
 
 [tool.setuptools.package-data]
-moe_sched = ["*.lark"]
+moe_policylang = ["*.lark"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -2,9 +2,9 @@
 
 import pytest
 
-from moe_sched.dsl import MoESched, PolicyBuilder, FluentPolicyBuilder
-from moe_sched.errors import DSLError, ValidationError
-from moe_sched.ir import (
+from moe_policylang.dsl import MoEPolicyLang, PolicyBuilder, FluentPolicyBuilder
+from moe_policylang.errors import DSLError, ValidationError
+from moe_policylang.ir import (
     EvictionPolicy,
     PolicyIR,
     PrefetchStrategy,
@@ -18,7 +18,7 @@ from moe_sched.ir import (
 
 class TestDecoratorAPI:
     def test_minimal_policy(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def my_policy(p):
@@ -29,7 +29,7 @@ class TestDecoratorAPI:
         assert my_policy.cache.capacity == 16
 
     def test_full_policy(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def full(p):
@@ -46,7 +46,7 @@ class TestDecoratorAPI:
         assert full.monitor.window == 200
 
     def test_string_enum_values(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def p(b):
@@ -59,7 +59,7 @@ class TestDecoratorAPI:
         assert p.schedule.mode is ScheduleMode.HYBRID
 
     def test_policy_registered_in_sched(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def pol(p):
@@ -69,7 +69,7 @@ class TestDecoratorAPI:
         assert sched.policies["pol"] is pol
 
     def test_multiple_policies(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def a(p):
@@ -84,7 +84,7 @@ class TestDecoratorAPI:
         assert sched.policies["b"].cache.capacity == 64
 
     def test_defaults_applied(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def d(p):
@@ -101,14 +101,14 @@ class TestDecoratorAPI:
 
 class TestDSLErrors:
     def test_missing_cache(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(DSLError, match="cache"):
             @sched.policy
             def no_cache(p):
                 p.prefetch(strategy="affinity")
 
     def test_duplicate_cache(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(DSLError, match="Duplicate cache"):
             @sched.policy
             def dup(p):
@@ -116,7 +116,7 @@ class TestDSLErrors:
                 p.cache(capacity=32)
 
     def test_duplicate_prefetch(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(DSLError, match="Duplicate prefetch"):
             @sched.policy
             def dup(p):
@@ -125,7 +125,7 @@ class TestDSLErrors:
                 p.prefetch(strategy="affinity")
 
     def test_duplicate_schedule(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(DSLError, match="Duplicate schedule"):
             @sched.policy
             def dup(p):
@@ -134,7 +134,7 @@ class TestDSLErrors:
                 p.schedule(mode="hybrid")
 
     def test_duplicate_monitor(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(DSLError, match="Duplicate monitor"):
             @sched.policy
             def dup(p):
@@ -143,14 +143,14 @@ class TestDSLErrors:
                 p.monitor()
 
     def test_invalid_eviction_string(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(ValueError):
             @sched.policy
             def bad(p):
                 p.cache(capacity=16, eviction="magic")
 
     def test_validation_runs_at_definition_time(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(ValidationError):
             @sched.policy
             def invalid(p):
@@ -163,7 +163,7 @@ class TestDSLErrors:
 
 class TestFluentBuilder:
     def test_basic(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         ir = (
             sched.build("test")
             .cache(capacity=32, eviction=EvictionPolicy.LRU)
@@ -176,17 +176,17 @@ class TestFluentBuilder:
         assert ir.cache.capacity == 32
 
     def test_chaining_returns_builder(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         builder = sched.build("test").cache(capacity=16)
         assert isinstance(builder, FluentPolicyBuilder)
 
     def test_missing_cache_in_fluent(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(DSLError, match="cache"):
             sched.build("no_cache").done()
 
     def test_fluent_validation(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         with pytest.raises(ValidationError):
             sched.build("bad").cache(capacity=0).done()
 
@@ -198,7 +198,7 @@ class TestFluentBuilder:
 class TestPolicyBuilder:
     def test_builder_is_fresh_per_policy(self):
         """Each decorator call gets a fresh builder."""
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def a(p):
@@ -212,8 +212,8 @@ class TestPolicyBuilder:
         assert b.cache.pin_experts == []
 
     def test_register_prebuilt(self):
-        from moe_sched.ir import CacheIR
-        sched = MoESched()
+        from moe_policylang.ir import CacheIR
+        sched = MoEPolicyLang()
         ir = PolicyIR(name="pre", cache=CacheIR(capacity=16))
         sched.register(ir)
         assert "pre" in sched.policies

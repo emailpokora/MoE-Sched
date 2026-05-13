@@ -7,15 +7,15 @@ import random
 
 import pytest
 
-from moe_sched.compiler import compile_policy
-from moe_sched.dsl import MoESched
-from moe_sched.ir import (
+from moe_policylang.compiler import compile_policy
+from moe_policylang.dsl import MoEPolicyLang
+from moe_policylang.ir import (
     EvictionPolicy,
     PolicyIR,
     PrefetchStrategy,
     ScheduleMode,
 )
-from moe_sched.runtime.scheduler import ExecutionDevice
+from moe_policylang.runtime.scheduler import ExecutionDevice
 
 
 # ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ def simulate_moe_inference(compiled, num_tokens=50, num_layers=4, num_experts=8,
 
 class TestEndToEndDecorator:
     def test_lru_policy(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def lru_pol(p):
@@ -76,7 +76,7 @@ class TestEndToEndDecorator:
         assert 0.0 <= stats["hit_rate"] <= 1.0
 
     def test_lfu_policy(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def lfu_pol(p):
@@ -87,7 +87,7 @@ class TestEndToEndDecorator:
         assert stats["total_accesses"] > 0
 
     def test_hybrid_schedule(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def hybrid_pol(p):
@@ -101,7 +101,7 @@ class TestEndToEndDecorator:
         assert stats["cpu_execs"] >= 0
 
     def test_full_policy_with_monitor(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def full_pol(p):
@@ -125,7 +125,7 @@ class TestEndToEndDecorator:
 
 class TestEndToEndFluent:
     def test_fluent_builder(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         ir = (
             sched.build("fluent_test")
             .cache(capacity=32, eviction=EvictionPolicy.LRU)
@@ -149,7 +149,7 @@ class TestPolicyComparison:
     workload (same seed)."""
 
     def test_lru_vs_lfu_different_hit_rates(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def lru(p):
@@ -167,7 +167,7 @@ class TestPolicyComparison:
         # But potentially different hit rates (skewed workload favors LFU)
 
     def test_larger_cache_higher_hit_rate(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def small(p):
@@ -182,7 +182,7 @@ class TestPolicyComparison:
         assert stats_large["hit_rate"] >= stats_small["hit_rate"]
 
     def test_gpu_only_vs_cpu_fallback(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def gpu(p):
@@ -210,7 +210,7 @@ class TestPolicySwitching:
     objects) with < 5 lines of DSL change."""
 
     def test_switch_eviction_only(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def policy_a(p):
@@ -231,7 +231,7 @@ class TestPolicySwitching:
         assert stats_a["total_accesses"] == stats_b["total_accesses"]
 
     def test_switch_schedule_mode(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def v1(p):
@@ -262,7 +262,7 @@ class TestExpressiveness:
         import inspect
         import textwrap
 
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def minimal(p):
@@ -288,7 +288,7 @@ class TestExpressiveness:
 class TestRegressions:
     def test_empty_pin_list(self):
         """Ensure empty pin list doesn't cause issues."""
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def pol(p):
@@ -299,7 +299,7 @@ class TestRegressions:
 
     def test_capacity_one_policy(self):
         """Edge case: cache of size 1."""
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def tiny(p):
@@ -313,7 +313,7 @@ class TestRegressions:
 
     def test_all_experts_pinned(self):
         """If all cache slots are pinned, eviction should not crash."""
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def pinned(p):

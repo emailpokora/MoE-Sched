@@ -1,4 +1,4 @@
-"""Custom exceptions for MoE-Sched."""
+"""Custom exceptions for MoE-PolicyLang."""
 
 
 class DSLError(Exception):

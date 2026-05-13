@@ -9,7 +9,7 @@ import argparse, gc, json, os, sys, textwrap, time, torch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-import moe_sched
+import moe_policylang
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALIASES = {"olmoe": "allenai/OLMoE-1B-7B-0924",
@@ -57,7 +57,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     tokenizer.pad_token = tokenizer.eos_token
 
-    acc = moe_sched.integrations.auto_accessor(model)
+    acc = moe_policylang.integrations.auto_accessor(model)
     vram = torch.cuda.get_device_properties(0).total_memory / 1e9
 
     print(f"Model: {model_id}  GPU: {torch.cuda.get_device_name(0)} ({vram:.0f}GB)")
@@ -73,11 +73,11 @@ def main():
           f"{'—':>7} {base_tps:>5.1f} {'1.00x':>7}")
 
     # Auto-generate + sweep
-    policies = moe_sched.auto_policies(model)
+    policies = moe_policylang.auto_policies(model)
     results = {}
 
     for name, dsl in policies.items():
-        mgr = moe_sched.attach(model, dsl)
+        mgr = moe_policylang.attach(model, dsl)
         tok_n, t = gen(model, tokenizer, PROMPTS, args.max_tokens)
         tps = tok_n / t
         s = mgr.get_stats()

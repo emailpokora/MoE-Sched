@@ -1,4 +1,4 @@
-"""Metrics monitoring for MoE-Sched runtime."""
+"""Metrics monitoring for MoE-PolicyLang runtime."""
 
 from __future__ import annotations
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from moe_sched.runtime.scheduler import (
+from moe_policylang.runtime.scheduler import (
     CPUFallbackScheduler,
     ExecutionDevice,
     GPUOnlyScheduler,

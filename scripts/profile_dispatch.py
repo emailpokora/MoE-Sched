@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Jesse Pokora — MIT License (see LICENSE)
-"""Profile MoE-Sched dispatch overhead on real hardware.
+"""Profile MoE-PolicyLang dispatch overhead on real hardware.
 
 Phase 2: Measures per-layer dispatch time for each policy to verify
 the <5% overhead claim.

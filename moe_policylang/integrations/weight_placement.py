@@ -5,17 +5,17 @@ which expert weights live on GPU vs CPU.  HuggingFace's own execution
 kernels handle the actual inference — we only move weights.
 
 Usage:
-    import moe_sched
+    import moe_policylang
 
-    sched = moe_sched.MoESched()
+    sched = moe_policylang.MoEPolicyLang()
 
     @sched.policy
     def my_policy(p):
         p.cache(capacity=32, eviction="lfu")
         p.prefetch(strategy="history", budget=4)
 
-    mgr = moe_sched.attach(model, my_policy)
-    output = model.generate(...)  # MoE-Sched manages expert placement
+    mgr = moe_policylang.attach(model, my_policy)
+    output = model.generate(...)  # MoE-PolicyLang manages expert placement
     print(mgr.get_stats())
 """
 
@@ -29,8 +29,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import torch
 import torch.nn as nn
 
-from moe_sched.runtime.hooks import PolicyHook
-from moe_sched.runtime.scheduler import ExecutionDevice
+from moe_policylang.runtime.hooks import PolicyHook
+from moe_policylang.runtime.scheduler import ExecutionDevice
 
 
 # ---------------------------------------------------------------------------
@@ -125,7 +125,7 @@ class PlacementStats:
 # ---------------------------------------------------------------------------
 
 class WeightPlacementManager:
-    """Connects MoE-Sched policy decisions to real tensor movement.
+    """Connects MoE-PolicyLang policy decisions to real tensor movement.
 
     This is the mechanism layer. The PolicyHook (policy layer) decides
     which experts should be cached; this class executes those decisions
@@ -210,7 +210,7 @@ class WeightPlacementManager:
         Automatically selects the best integration strategy:
 
         **HF Experts Backend** (Mixtral, OLMoE, DeepSeek — 3D tensor experts):
-          - Registers ``"moe_sched"`` via HF's official ``ExpertsInterface``
+          - Registers ``"moe_policylang"`` via HF's official ``ExpertsInterface``
           - Expert weights live on CPU; slices copied to GPU on-demand
           - Eviction callback frees GPU copies automatically
           - HF dispatches to our backend — no monkey-patching
@@ -233,7 +233,7 @@ class WeightPlacementManager:
         # Strategy 1: HF Experts Backend (3D tensor models — most modern MoE)
         if self.accessor._expert_type == "indexed":
             try:
-                from moe_sched.integrations.hf_experts_backend import install_backend
+                from moe_policylang.integrations.hf_experts_backend import install_backend
                 self._backend_contexts = install_backend(self.accessor._model, self)
                 self._mode = "backend"
                 return self._backend_contexts
@@ -268,7 +268,7 @@ class WeightPlacementManager:
             h.remove()
         self._handles = []
         if getattr(self, '_backend_contexts', None):
-            from moe_sched.integrations.hf_experts_backend import uninstall_backend
+            from moe_policylang.integrations.hf_experts_backend import uninstall_backend
             uninstall_backend(self.accessor._model, self._backend_contexts)
             self._backend_contexts = []
 

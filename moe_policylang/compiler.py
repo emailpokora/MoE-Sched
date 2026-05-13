@@ -5,34 +5,34 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from moe_sched.ir import EvictionPolicy, PrefetchStrategy, ScheduleMode
-from moe_sched.runtime.cache import (
+from moe_policylang.ir import EvictionPolicy, PrefetchStrategy, ScheduleMode
+from moe_policylang.runtime.cache import (
     FreqThresholdCache,
     LFUCache,
     LRUCache,
     ScoreCache,
 )
-from moe_sched.runtime.monitor import Monitor
-from moe_sched.runtime.prefetch import (
+from moe_policylang.runtime.monitor import Monitor
+from moe_policylang.runtime.prefetch import (
     AffinityPrefetcher,
     HistoryPrefetcher,
     LookaheadPrefetcher,
     NullPrefetcher,
 )
-from moe_sched.runtime.triggers import (
+from moe_policylang.runtime.triggers import (
     MemoryPressureTrigger,
     TriggerSet,
     TTLTrigger,
 )
-from moe_sched.runtime.scheduler import (
+from moe_policylang.runtime.scheduler import (
     CPUFallbackScheduler,
     GPUOnlyScheduler,
     HybridScheduler,
 )
-from moe_sched.runtime._fast import FAST_PATH_AVAILABLE
+from moe_policylang.runtime._fast import FAST_PATH_AVAILABLE
 
 if TYPE_CHECKING:
-    from moe_sched.ir import PolicyIR
+    from moe_policylang.ir import PolicyIR
 
 
 @dataclass
@@ -51,12 +51,12 @@ def _build_single_cache(eviction: "EvictionPolicy", capacity: int, cache_ir: "Ca
     """Build a single cache instance for a given eviction policy and capacity."""
     if eviction == EvictionPolicy.LRU:
         if FAST_PATH_AVAILABLE:
-            from moe_sched.runtime._fast import LRUCacheFast
+            from moe_policylang.runtime._fast import LRUCacheFast
             return LRUCacheFast(capacity, pin_experts=cache_ir.pin_experts)
         return LRUCache(capacity, pin_experts=cache_ir.pin_experts)
     elif eviction == EvictionPolicy.LFU:
         if FAST_PATH_AVAILABLE:
-            from moe_sched.runtime._fast import LFUCacheFast
+            from moe_policylang.runtime._fast import LFUCacheFast
             return LFUCacheFast(capacity, pin_experts=cache_ir.pin_experts, decay=cache_ir.lfu_decay)
         return LFUCache(capacity, pin_experts=cache_ir.pin_experts, decay=cache_ir.lfu_decay)
     elif eviction == EvictionPolicy.SCORE:
@@ -73,13 +73,13 @@ def compile_policy(ir: "PolicyIR") -> CompiledPolicy:
     cache_ir = ir.cache
     if cache_ir.eviction == EvictionPolicy.LRU:
         if FAST_PATH_AVAILABLE:
-            from moe_sched.runtime._fast import LRUCacheFast
+            from moe_policylang.runtime._fast import LRUCacheFast
             cache = LRUCacheFast(cache_ir.capacity, pin_experts=cache_ir.pin_experts)
         else:
             cache = LRUCache(cache_ir.capacity, pin_experts=cache_ir.pin_experts)
     elif cache_ir.eviction == EvictionPolicy.LFU:
         if FAST_PATH_AVAILABLE:
-            from moe_sched.runtime._fast import LFUCacheFast
+            from moe_policylang.runtime._fast import LFUCacheFast
             cache = LFUCacheFast(
                 cache_ir.capacity,
                 pin_experts=cache_ir.pin_experts,
@@ -105,7 +105,7 @@ def compile_policy(ir: "PolicyIR") -> CompiledPolicy:
             pin_experts=cache_ir.pin_experts,
         )
     elif cache_ir.eviction == EvictionPolicy.FALLBACK:
-        from moe_sched.runtime.cache import FallbackCache
+        from moe_policylang.runtime.cache import FallbackCache
         primary_eviction = getattr(cache_ir, "_primary_eviction", EvictionPolicy.LFU)
         fallback_eviction = cache_ir.fallback_eviction or EvictionPolicy.LRU
         # Use explicit sizes if provided, otherwise auto-split 2/3 + 1/3
@@ -147,19 +147,19 @@ def compile_policy(ir: "PolicyIR") -> CompiledPolicy:
     sched_ir = ir.schedule
     if sched_ir.mode == ScheduleMode.GPU_ONLY:
         if FAST_PATH_AVAILABLE:
-            from moe_sched.runtime._fast import GPUOnlySchedulerFast
+            from moe_policylang.runtime._fast import GPUOnlySchedulerFast
             scheduler = GPUOnlySchedulerFast()
         else:
             scheduler = GPUOnlyScheduler()
     elif sched_ir.mode == ScheduleMode.CPU_FALLBACK:
         if FAST_PATH_AVAILABLE:
-            from moe_sched.runtime._fast import CPUFallbackSchedulerFast
+            from moe_policylang.runtime._fast import CPUFallbackSchedulerFast
             scheduler = CPUFallbackSchedulerFast()
         else:
             scheduler = CPUFallbackScheduler()
     elif sched_ir.mode == ScheduleMode.HYBRID:
         if FAST_PATH_AVAILABLE:
-            from moe_sched.runtime._fast import HybridSchedulerFast
+            from moe_policylang.runtime._fast import HybridSchedulerFast
             scheduler = HybridSchedulerFast(cpu_threshold_ms=sched_ir.cpu_threshold_ms)
         else:
             scheduler = HybridScheduler(cpu_threshold_ms=sched_ir.cpu_threshold_ms)

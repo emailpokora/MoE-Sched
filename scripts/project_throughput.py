@@ -6,7 +6,7 @@ Takes eval results from run_eval.py and applies a calibrated PCIe transfer
 penalty on every cache miss to project what real offloading throughput
 would be under each caching policy.
 
-This is the key bridge between MoE-Sched's policy evaluation (trace replay)
+This is the key bridge between MoE-PolicyLang's policy evaluation (trace replay)
 and real-world offloading impact — no live offloading needed.
 
 Usage:

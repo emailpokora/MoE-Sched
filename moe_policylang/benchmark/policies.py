@@ -6,8 +6,8 @@ We provide 5 DSL policies covering every caching strategy and 2 baselines.
 
 from __future__ import annotations
 
-from moe_sched.compiler import CompiledPolicy, compile_policy
-from moe_sched.dsl import MoESched
+from moe_policylang.compiler import CompiledPolicy, compile_policy
+from moe_policylang.dsl import MoEPolicyLang
 
 
 # ---------------------------------------------------------------------------
@@ -15,7 +15,7 @@ from moe_sched.dsl import MoESched
 # ---------------------------------------------------------------------------
 
 def _build_policies() -> dict[str, CompiledPolicy]:
-    sched = MoESched()
+    sched = MoEPolicyLang()
 
     # 1. LRU + no prefetch + GPU-only  (simplest possible DSL policy)
     @sched.policy
@@ -86,7 +86,7 @@ def get_policy_names() -> list[str]:
 # Baselines
 # ---------------------------------------------------------------------------
 
-from moe_sched.baselines import HandCodedLRU, HandCodedLRUFallback
+from moe_policylang.baselines import HandCodedLRU, HandCodedLRUFallback
 
 BASELINES = {
     "baseline_lru_gpu": (HandCodedLRU, "Hand-coded LRU + GPU-only"),

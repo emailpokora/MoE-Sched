@@ -24,13 +24,13 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from moe_sched.ir import (
+from moe_policylang.ir import (
     PolicyIR, CacheIR, PrefetchIR, ScheduleIR,
     EvictionPolicy, PrefetchStrategy, ScheduleMode,
 )
-from moe_sched.compiler import compile_policy
-from moe_sched.runtime.hooks import PolicyHook, build_hook
-from moe_sched.runtime.per_layer import (
+from moe_policylang.compiler import compile_policy
+from moe_policylang.runtime.hooks import PolicyHook, build_hook
+from moe_policylang.runtime.per_layer import (
     PerLayerHook, PerLayerConfig, RoutingEntropyTracker,
 )
 

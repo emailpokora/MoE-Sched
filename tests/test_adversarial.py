@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import pytest
 
-from moe_sched import (
+from moe_policylang import (
     CacheIR,
     EvictionPolicy,
     PolicyIR,
@@ -27,7 +27,7 @@ from moe_sched import (
     build_hook,
     compile_policy,
 )
-from moe_sched.integrations.mock_moe import (
+from moe_policylang.integrations.mock_moe import (
     MockMoEModel,
     deterministic_trace_selector,
     uniform_selector,

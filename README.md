@@ -1,4 +1,4 @@
-# MoE-Sched
+# MoE-PolicyLang
 
 **A scheduling language for Mixture-of-Experts models.**
 
@@ -12,7 +12,7 @@ Large language models like Mixtral, DeepSeek, and Qwen use **Mixture-of-Experts 
 
 But managing that offloading is complex. *Which* experts to keep on GPU? *When* to prefetch the next ones? *How* to evict under memory pressure?
 
-**Every existing system hardcodes these decisions** in hundreds of lines of C++/CUDA. MoE-Sched replaces all of that with a small, declarative language.
+**Every existing system hardcodes these decisions** in hundreds of lines of C++/CUDA. MoE-PolicyLang replaces all of that with a small, declarative language.
 
 <p align="center">
   <img src="docs/images/constrained_throughput.png" width="600" alt="Throughput and hit rate comparison across policies on consumer GPU">
@@ -22,7 +22,7 @@ But managing that offloading is complex. *Which* experts to keep on GPU? *When* 
 
 ## The Language
 
-A MoE-Sched policy is a `.moe` file with four composable blocks:
+A MoE-PolicyLang policy is a `.moe` file with four composable blocks:
 
 ```
 policy balanced {
@@ -57,13 +57,13 @@ policy balanced {
 ## Two Lines to Attach
 
 ```python
-import moe_sched
+import moe_policylang
 from transformers import AutoModelForCausalLM
 
 model = AutoModelForCausalLM.from_pretrained("allenai/OLMoE-1B-7B-0924")
 
 # Auto-generate a tuned policy from your model + GPU, attach it
-mgr = moe_sched.auto_attach(model)
+mgr = moe_policylang.auto_attach(model)
 output = model.generate(...)
 print(mgr.get_stats())  # hit rate, transfers, evictions
 ```
@@ -71,7 +71,7 @@ print(mgr.get_stats())  # hit rate, transfers, evictions
 Or write a policy explicitly:
 
 ```python
-mgr = moe_sched.attach(model, """
+mgr = moe_policylang.attach(model, """
     policy aggressive {
         cache { capacity = 8  eviction = lru }
     }
@@ -81,7 +81,7 @@ mgr = moe_sched.attach(model, """
 Or load a `.moe` file:
 
 ```python
-mgr = moe_sched.attach(model, open("my_policy.moe").read())
+mgr = moe_policylang.attach(model, open("my_policy.moe").read())
 ```
 
 ---
@@ -108,7 +108,7 @@ All policies add **< 3.2% overhead** on A100 (6–47 µs/layer vs. 1,459 µs for
 
 ### 13–36× less code than published systems
 
-| System | Their LOC | MoE-Sched | Reduction |
+| System | Their LOC | MoE-PolicyLang | Reduction |
 |--------|-----------|-----------|-----------|
 | ExpertFlow | ~400 (Py+CUDA) | 16 lines | 25× |
 | HybriMoE | ~500 (Py+CUDA) | 14 lines | 36× |
@@ -189,7 +189,7 @@ python setup_cython.py build_ext --inplace
 ## Project Structure
 
 ```
-moe_sched/
+moe_policylang/
 ├── grammar.lark           # Lark LALR grammar (62 productions)
 ├── parser.py              # Grammar → PolicyIR
 ├── ir.py                  # Intermediate representation
@@ -254,8 +254,8 @@ runtime API, and policy authoring guide.
 ## Citation
 
 ```bibtex
-@article{pokora2026moesched,
-  title={MoE-Sched: A Domain-Specific Language for Mixture-of-Experts Scheduling Policies},
+@article{pokora2026moepolicylang,
+  title={MoE-PolicyLang: A Domain-Specific Language for Mixture-of-Experts Scheduling Policies},
   author={Pokora, Jesse},
   year={2026}
 }

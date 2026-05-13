@@ -25,9 +25,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from moe_sched.benchmark.policies import get_dsl_policies
-from moe_sched.compiler import compile_policy
-from moe_sched.runtime.hooks import build_hook
+from moe_policylang.benchmark.policies import get_dsl_policies
+from moe_policylang.compiler import compile_policy
+from moe_policylang.runtime.hooks import build_hook
 
 TRACES_DIR = os.path.join(ROOT, "traces")
 FIG_DIR = os.path.join(ROOT, "paper", "figures")

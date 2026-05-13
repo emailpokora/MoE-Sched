@@ -1,14 +1,14 @@
-"""Validation rules for MoE-Sched PolicyIR."""
+"""Validation rules for MoE-PolicyLang PolicyIR."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from moe_sched.errors import ValidationError
-from moe_sched.ir import EvictionPolicy, PrefetchStrategy, ScheduleMode
+from moe_policylang.errors import ValidationError
+from moe_policylang.ir import EvictionPolicy, PrefetchStrategy, ScheduleMode
 
 if TYPE_CHECKING:
-    from moe_sched.ir import PolicyIR
+    from moe_policylang.ir import PolicyIR
 
 
 # Each rule is (description, predicate_that_must_be_true).

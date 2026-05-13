@@ -14,7 +14,7 @@ Cython-typed, build_hook() returns a FastPolicyHook automatically.
 from dataclasses import dataclass, field
 from typing import List, Optional, Sequence
 
-from moe_sched.runtime.scheduler import ExecutionDevice
+from moe_policylang.runtime.scheduler import ExecutionDevice
 
 
 # We need lightweight result structs — avoid Python dataclass overhead

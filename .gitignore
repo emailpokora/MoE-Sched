@@ -9,7 +9,7 @@ build/
 
 # Cython
 *.c
-!moe_sched/runtime/_fast/*.pyx
+!moe_policylang/runtime/_fast/*.pyx
 
 # Traces (large, regenerable)
 traces/*.jsonl
@@ -40,7 +40,7 @@ paper/*.fdb_latexmk
 .pytest_cache/
 
 # Packaged archive (regenerable)
-moe_sched.zip
+moe_policylang.zip
 
 # Temp / debug
 offload_tmp/

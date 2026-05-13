@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional
 
-from moe_sched.benchmark.metrics import MetricsSummary
+from moe_policylang.benchmark.metrics import MetricsSummary
 
 try:
     import matplotlib

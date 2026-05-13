@@ -2,10 +2,10 @@
 
 import math
 import pytest
-from moe_sched.ir import PolicyIR, CacheIR, EvictionPolicy
-from moe_sched.compiler import compile_policy
-from moe_sched.runtime.hooks import PolicyHook
-from moe_sched.runtime.per_layer import (
+from moe_policylang.ir import PolicyIR, CacheIR, EvictionPolicy
+from moe_policylang.compiler import compile_policy
+from moe_policylang.runtime.hooks import PolicyHook
+from moe_policylang.runtime.per_layer import (
     RoutingEntropyTracker,
     PerLayerHook,
     PerLayerConfig,

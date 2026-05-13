@@ -4,17 +4,17 @@ from __future__ import annotations
 
 import pytest
 
-from moe_sched import (
+from moe_policylang import (
     AdaptAction,
     AdaptCondition,
     AdaptIR,
     AdaptRule,
-    MoESched,
+    MoEPolicyLang,
     compile_policy,
     parse_policy,
 )
-from moe_sched.adaptive import AdaptiveHook, _eval_condition
-from moe_sched.runtime.hooks import PolicyHook, build_hook
+from moe_policylang.adaptive import AdaptiveHook, _eval_condition
+from moe_policylang.runtime.hooks import PolicyHook, build_hook
 
 
 # ---------------------------------------------------------------------------
@@ -53,7 +53,7 @@ class TestEvalCondition:
 
 def _make_adaptive_hook(rules, capacity=4, eviction="lfu"):
     """Helper to build a hook with adaptive rules."""
-    sched = MoESched()
+    sched = MoEPolicyLang()
 
     @sched.policy
     def test_policy(p):
@@ -78,7 +78,7 @@ class TestAdaptiveHook:
         assert isinstance(hook, AdaptiveHook)
 
     def test_returns_plain_hook_when_no_rules(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def plain(p):
@@ -371,7 +371,7 @@ class TestAdaptParsing:
 class TestAdaptRoundTrip:
     def test_edsl_adapt_round_trip(self):
         """Python eDSL → IR → compile → AdaptiveHook → run."""
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def adaptive_test(p):
@@ -423,7 +423,7 @@ class TestAdaptRoundTrip:
 
     def test_fluent_builder_adapt(self):
         """Fluent builder API with adapt."""
-        sched = MoESched()
+        sched = MoEPolicyLang()
         ir = (
             sched.build("fluent_adaptive")
             .cache(capacity=4, eviction="lfu", lfu_decay=0.9)

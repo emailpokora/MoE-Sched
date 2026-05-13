@@ -6,7 +6,7 @@ and HybridScheduler.  Return ExecutionDevice values matching the Python API.
 """
 
 from dataclasses import dataclass
-from moe_sched.runtime.scheduler import ExecutionDevice
+from moe_policylang.runtime.scheduler import ExecutionDevice
 
 
 @dataclass

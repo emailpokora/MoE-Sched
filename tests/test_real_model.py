@@ -26,7 +26,7 @@ def has_cuda():
 
 
 class TestTraceRecorder:
-    """Tests for moe_sched.integrations.trace_recorder."""
+    """Tests for moe_policylang.integrations.trace_recorder."""
 
     @pytest.mark.skip(reason="Phase 1 not implemented")
     def test_record_trace_basic(self, has_cuda):

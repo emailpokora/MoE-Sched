@@ -1,4 +1,4 @@
-"""Metrics computation for MoE-Sched benchmark results.
+"""Metrics computation for MoE-PolicyLang benchmark results.
 
 Collects per-policy, per-workload measurements:
   * Throughput  — simulated tokens per second (wall-clock time for on_layer calls).

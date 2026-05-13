@@ -17,13 +17,13 @@ import argparse
 import json
 from pathlib import Path
 
-from moe_sched.benchmark.runner import run_all, format_table, results_to_dict
-from moe_sched.benchmark.expressiveness import (
+from moe_policylang.benchmark.runner import run_all, format_table, results_to_dict
+from moe_policylang.benchmark.expressiveness import (
     analyse_dsl_api_policies,
     analyse_moe_files,
     format_expressiveness_table,
 )
-from moe_sched.benchmark.visualize import (
+from moe_policylang.benchmark.visualize import (
     hit_rate_table,
     throughput_table,
     latency_table,
@@ -33,7 +33,7 @@ from moe_sched.benchmark.visualize import (
 
 
 def main():
-    ap = argparse.ArgumentParser(description="MoE-Sched full evaluation suite")
+    ap = argparse.ArgumentParser(description="MoE-PolicyLang full evaluation suite")
     ap.add_argument("--output", "-o", type=Path, default=Path("results"))
     ap.add_argument("--capacity", type=int, default=16)
     args = ap.parse_args()
@@ -43,7 +43,7 @@ def main():
 
     # ---- Run benchmarks ----
     print("=" * 70)
-    print("MoE-Sched Evaluation Suite — Week 5")
+    print("MoE-PolicyLang Evaluation Suite — Week 5")
     print("=" * 70)
     print()
 

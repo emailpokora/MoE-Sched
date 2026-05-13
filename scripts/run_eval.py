@@ -12,14 +12,14 @@ import sys
 import os
 import glob
 
-# Ensure moe_sched is importable
+# Ensure moe_policylang is importable
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from moe_sched.benchmark.policies import get_dsl_policies
-from moe_sched.compiler import compile_policy
-from moe_sched.runtime.hooks import build_hook
-from moe_sched.autotuner import autotune
+from moe_policylang.benchmark.policies import get_dsl_policies
+from moe_policylang.compiler import compile_policy
+from moe_policylang.runtime.hooks import build_hook
+from moe_policylang.autotuner import autotune
 
 TRACES_DIR = os.path.join(ROOT, "traces")
 

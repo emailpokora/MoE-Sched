@@ -6,8 +6,8 @@ failing test case.
 
 import pytest
 
-from moe_sched.errors import ValidationError
-from moe_sched.ir import (
+from moe_policylang.errors import ValidationError
+from moe_policylang.ir import (
     CacheIR,
     EvictionPolicy,
     PolicyIR,
@@ -16,7 +16,7 @@ from moe_sched.ir import (
     ScheduleIR,
     ScheduleMode,
 )
-from moe_sched.validator import validate_policy
+from moe_policylang.validator import validate_policy
 
 
 def _make(

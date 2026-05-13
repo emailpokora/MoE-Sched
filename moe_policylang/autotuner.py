@@ -5,7 +5,7 @@ schedule mode) and finds optimal configurations for a given workload trace.
 
 Usage::
 
-    from moe_sched.autotuner import autotune
+    from moe_policylang.autotuner import autotune
 
     # trace_data: list of dicts with 'l' (layer), 'e' (experts), 's' (scores)
     best, top5 = autotune(trace_data, metric='hit_rate', top_k=5)
@@ -19,10 +19,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from moe_sched.compiler import compile_policy
-from moe_sched.dsl import MoESched
-from moe_sched.ir import PolicyIR
-from moe_sched.runtime.hooks import build_hook
+from moe_policylang.compiler import compile_policy
+from moe_policylang.dsl import MoEPolicyLang
+from moe_policylang.ir import PolicyIR
+from moe_policylang.runtime.hooks import build_hook
 
 
 @dataclass
@@ -80,7 +80,7 @@ def _expand_grid(grid: Dict[str, list]) -> List[Dict[str, object]]:
 
 def _build_and_compile(name: str, params: Dict[str, object]) -> PolicyIR:
     """Build a PolicyIR from a flat parameter dict."""
-    sched = MoESched()
+    sched = MoEPolicyLang()
 
     @sched.policy
     def _policy(p, _params=params):

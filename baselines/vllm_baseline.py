@@ -12,7 +12,7 @@ TODO:
     - Set up vLLM with Mixtral-8x7B in offline mode
     - Instrument vLLM's expert cache (if accessible) or measure externally
     - Run ShareGPT traces, collect tok/s, TTFT, memory usage
-    - Export results in same MetricsSummary format as MoE-Sched benchmark
+    - Export results in same MetricsSummary format as MoE-PolicyLang benchmark
 """
 
 from __future__ import annotations

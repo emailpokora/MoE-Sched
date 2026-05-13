@@ -17,7 +17,7 @@ from typing import List, Optional, Tuple
 import torch
 import torch.nn as nn
 
-from moe_sched.integrations.weight_placement import ExpertAccessor
+from moe_policylang.integrations.weight_placement import ExpertAccessor
 
 
 # ---------------------------------------------------------------------------

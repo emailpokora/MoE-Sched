@@ -1,7 +1,7 @@
-"""Allow ``python -m moe_sched`` to invoke the CLI."""
+"""Allow ``python -m moe_policylang`` to invoke the CLI."""
 
 import sys
 
-from moe_sched.cli import main
+from moe_policylang.cli import main
 
 sys.exit(main())

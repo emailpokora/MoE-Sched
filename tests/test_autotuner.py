@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from moe_sched.autotuner import (
+from moe_policylang.autotuner import (
     DEFAULT_GRID,
     TuningResult,
     _build_and_compile,

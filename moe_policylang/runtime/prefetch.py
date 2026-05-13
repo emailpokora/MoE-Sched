@@ -1,4 +1,4 @@
-"""Prefetch engines for MoE-Sched runtime."""
+"""Prefetch engines for MoE-PolicyLang runtime."""
 
 from __future__ import annotations
 

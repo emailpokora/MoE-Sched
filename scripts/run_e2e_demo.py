@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""MoE-Sched E2E Demo: DSL-Driven Expert Offloading.
+"""MoE-PolicyLang E2E Demo: DSL-Driven Expert Offloading.
 
-The MoE-Sched DSL is the central artifact.  This demo:
+The MoE-PolicyLang DSL is the central artifact.  This demo:
   1. Auto-generates a DSL policy from the model architecture + GPU
   2. Prints it so the user can see/edit it
   3. Compiles and attaches it to the live model
@@ -15,7 +15,7 @@ import argparse, os, sys, textwrap, time, torch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-import moe_sched
+import moe_policylang
 
 ALIASES = {"olmoe": "allenai/OLMoE-1B-7B-0924",
            "mixtral": "mistralai/Mixtral-8x7B-Instruct-v0.1"}
@@ -59,14 +59,14 @@ if args.policy:
     print(f"\nLoaded policy from {args.policy}:")
 else:
     # Auto-generate from model + hardware
-    policies = moe_sched.auto_policies(model)
+    policies = moe_policylang.auto_policies(model)
     dsl_source = policies["balanced"]
     print(f"\nAuto-generated DSL policy (edit and re-run with --policy):")
 
 print(textwrap.dedent(dsl_source).strip())
 
 # ── Step 2: Attach — DSL string goes straight to the model ──────────────
-mgr = moe_sched.attach(model, dsl_source)
+mgr = moe_policylang.attach(model, dsl_source)
 
 # ── Measure ─────────────────────────────────────────────────────────────
 torch.cuda.synchronize(); t0 = time.perf_counter()
@@ -77,7 +77,7 @@ sched_tps = (out.shape[1] - inp["input_ids"].shape[1]) / (time.perf_counter() - 
 
 s = mgr.get_stats()
 c, p = s["policy"]["cache"], s["placement"]
-print(f"\nMoE-Sched: {sched_tps:.1f} tok/s  GPU={torch.cuda.memory_allocated()/1e9:.1f}GB"
+print(f"\nMoE-PolicyLang: {sched_tps:.1f} tok/s  GPU={torch.cuda.memory_allocated()/1e9:.1f}GB"
       f"  hits={c['hit_rate']:.0%}  transfers={p['cpu_to_gpu_transfers']}"
       f"  evictions={p['gpu_to_cpu_transfers']}")
 print(f"\nA: {tok.decode(out[0], skip_special_tokens=True)[len(prompt):].strip()[:200]}")

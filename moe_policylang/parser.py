@@ -1,11 +1,11 @@
-"""Text-based DSL parser for MoE-Sched policies.
+"""Text-based DSL parser for MoE-PolicyLang policies.
 
 Parses `.moe` policy files (or raw strings) into validated PolicyIR objects
 using a Lark LALR grammar.  This complements the existing Python eDSL
 (decorator + fluent APIs) with a standalone, language-agnostic syntax.
 
 Usage:
-    from moe_sched.parser import parse_policies, parse_policy
+    from moe_policylang.parser import parse_policies, parse_policy
 
     # Multiple policies from a file or string
     policies = parse_policies(Path("examples/lru_policy.moe").read_text())
@@ -26,9 +26,9 @@ from typing import List
 from lark import Lark, Transformer, v_args
 from lark.exceptions import VisitError
 
-from moe_sched.errors import DSLError, ValidationError
-from moe_sched.adaptive import AdaptAction, AdaptCondition, AdaptIR, AdaptRule
-from moe_sched.ir import (
+from moe_policylang.errors import DSLError, ValidationError
+from moe_policylang.adaptive import AdaptAction, AdaptCondition, AdaptIR, AdaptRule
+from moe_policylang.ir import (
     CacheIR,
     EvictionPolicy,
     MonitorIR,
@@ -38,7 +38,7 @@ from moe_sched.ir import (
     ScheduleIR,
     ScheduleMode,
 )
-from moe_sched.validator import validate_policy
+from moe_policylang.validator import validate_policy
 
 # ---------------------------------------------------------------------------
 # Grammar
@@ -434,7 +434,7 @@ class _IRBuilder(Transformer):
     def version_decl(self, version_num):
         if float(version_num) > self._CURRENT_VERSION:
             raise DSLError(
-                f"This file requires MoE-Sched grammar >= {version_num}, "
+                f"This file requires MoE-PolicyLang grammar >= {version_num}, "
                 f"but the current parser supports up to {self._CURRENT_VERSION}"
             )
         return None  # consumed; not passed to start
@@ -451,7 +451,7 @@ _transformer = _IRBuilder()
 # ---------------------------------------------------------------------------
 
 def parse_policies(source: str) -> List[PolicyIR]:
-    """Parse a MoE-Sched source string and return a list of validated PolicyIR.
+    """Parse a MoE-PolicyLang source string and return a list of validated PolicyIR.
 
     Args:
         source: The policy source text (contents of a .moe file).

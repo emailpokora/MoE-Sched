@@ -1,17 +1,17 @@
-"""Tests for the text-based MoE-Sched DSL parser."""
+"""Tests for the text-based MoE-PolicyLang DSL parser."""
 
 from pathlib import Path
 
 import pytest
 from lark.exceptions import UnexpectedInput
 
-from moe_sched.errors import DSLError, ValidationError
-from moe_sched.ir import (
+from moe_policylang.errors import DSLError, ValidationError
+from moe_policylang.ir import (
     EvictionPolicy,
     PrefetchStrategy,
     ScheduleMode,
 )
-from moe_sched.parser import parse_file, parse_policies, parse_policy
+from moe_policylang.parser import parse_file, parse_policies, parse_policy
 
 
 EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
@@ -240,9 +240,9 @@ class TestEDSLEquivalence:
     """Parsed policies should produce identical IR to the Python eDSL."""
 
     def test_lru_matches_python_dsl(self):
-        from moe_sched import MoESched
+        from moe_policylang import MoEPolicyLang
 
-        sched = MoESched()
+        sched = MoEPolicyLang()
         ir_py = (
             sched.build("lru_baseline")
             .cache(capacity=16, eviction="lru")
@@ -383,7 +383,7 @@ class TestConditionalExpressions:
 
 class TestCompilerIntegration:
     def test_parsed_policy_compiles(self):
-        from moe_sched import compile_policy
+        from moe_policylang import compile_policy
 
         [ir] = parse_file(EXAMPLES_DIR / "lfu_policy.moe")
         compiled = compile_policy(ir)

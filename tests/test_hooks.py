@@ -2,10 +2,10 @@
 
 import pytest
 
-from moe_sched import (
+from moe_policylang import (
     CacheIR,
     EvictionPolicy,
-    MoESched,
+    MoEPolicyLang,
     PolicyIR,
     PrefetchIR,
     PrefetchStrategy,
@@ -14,7 +14,7 @@ from moe_sched import (
     build_hook,
     compile_policy,
 )
-from moe_sched.runtime.scheduler import ExecutionDevice
+from moe_policylang.runtime.scheduler import ExecutionDevice
 
 
 # ---------------------------------------------------------------------------
@@ -141,7 +141,7 @@ class TestPrefetchWiring:
 
 class TestMonitorIntegration:
     def test_monitor_records_when_present(self):
-        sched = MoESched()
+        sched = MoEPolicyLang()
         ir = (
             sched.build("mon")
             .cache(capacity=4, eviction="lru")

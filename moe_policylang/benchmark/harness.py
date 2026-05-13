@@ -10,10 +10,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Callable, List
 
-from moe_sched.benchmark.metrics import MetricsSummary, compute_metrics
-from moe_sched.benchmark.workloads import Workload
-from moe_sched.compiler import CompiledPolicy
-from moe_sched.runtime.hooks import PolicyHook, build_hook
+from moe_policylang.benchmark.metrics import MetricsSummary, compute_metrics
+from moe_policylang.benchmark.workloads import Workload
+from moe_policylang.compiler import CompiledPolicy
+from moe_policylang.runtime.hooks import PolicyHook, build_hook
 
 
 @dataclass

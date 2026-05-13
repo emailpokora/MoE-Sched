@@ -1,9 +1,9 @@
-"""Tests for the moe-sched CLI."""
+"""Tests for the moe-policylang CLI."""
 
 import pytest
 from pathlib import Path
 
-from moe_sched.cli import main
+from moe_policylang.cli import main
 
 EXAMPLES = Path(__file__).parent.parent / "examples"
 
@@ -97,7 +97,7 @@ class TestVersionCommand:
         rc = main(["version"])
         assert rc == 0
         out = capsys.readouterr().out
-        assert "moe-sched" in out
+        assert "moe-policylang" in out
         assert "1.0.0-dev" in out
 
 
@@ -106,4 +106,4 @@ class TestNoCommand:
         rc = main([])
         assert rc == 0
         out = capsys.readouterr().out
-        assert "moe-sched" in out.lower() or "usage" in out.lower()
+        assert "moe-policylang" in out.lower() or "usage" in out.lower()

@@ -4,7 +4,7 @@
 Usage:
     python setup.py build_ext --inplace
 
-This compiles the Cython fast-path modules in moe_sched/runtime/_fast/
+This compiles the Cython fast-path modules in moe_policylang/runtime/_fast/
 into native extension modules.
 
 Status: STUB — activate after Phase 2 .pyx files are implemented.
@@ -12,18 +12,20 @@ Status: STUB — activate after Phase 2 .pyx files are implemented.
 
 from setuptools import setup, find_packages
 
-from Cython.Build import cythonize
-
-ext_modules = cythonize([
-    "moe_sched/runtime/_fast/_cache.pyx",
-], compiler_directives={
-    "boundscheck": False,
-    "wraparound": False,
-    "language_level": "3",
-})
+try:
+    from Cython.Build import cythonize
+    ext_modules = cythonize([
+        "moe_policylang/runtime/_fast/_cache.pyx",
+    ], compiler_directives={
+        "boundscheck": False,
+        "wraparound": False,
+        "language_level": "3",
+    })
+except ImportError:
+    ext_modules = []
 
 setup(
-    name="moe-sched",
+    name="moe-policylang",
     version="1.0.0",
     author="Jesse Pokora",
     description="A domain-specific language for Mixture-of-Experts scheduling policies",

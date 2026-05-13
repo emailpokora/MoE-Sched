@@ -19,7 +19,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional, Sequence
 
-from moe_sched.runtime.hooks import DispatchPlan, PolicyHook
+from moe_policylang.runtime.hooks import DispatchPlan, PolicyHook
 
 
 # ---------------------------------------------------------------------------

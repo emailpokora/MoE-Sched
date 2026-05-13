@@ -1,9 +1,9 @@
 # Baselines
 
-> Part of [MoE-Sched](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
+> Part of [MoE-PolicyLang](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
 
 Hand-coded and third-party MoE serving baselines for comparison against
-MoE-Sched DSL-specified policies.
+MoE-PolicyLang DSL-specified policies.
 
 ## Setup
 
@@ -43,4 +43,4 @@ python -m baselines.moe_infinity_baseline \
 - Metrics recorded: GPU memory, tokens/sec, time-to-first-token, and
   internal cache hit rates (where accessible).
 - Results are exported in a format compatible with
-  `moe_sched.benchmark.metrics.MetricsSummary`.
+  `moe_policylang.benchmark.metrics.MetricsSummary`.

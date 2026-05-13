@@ -1,4 +1,4 @@
-// MoE-Sched policy grammar v0.6
+// MoE-PolicyLang policy grammar v0.6
 // Parsed by Lark (LALR) — produces a tree that the IR builder transforms into PolicyIR.
 
 start: version_decl? policy+

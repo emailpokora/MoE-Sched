@@ -1,6 +1,6 @@
-"""MoE-Sched experts backend for HuggingFace Transformers.
+"""MoE-PolicyLang experts backend for HuggingFace Transformers.
 
-Registers a ``"moe_sched"`` experts implementation via HF's official
+Registers a ``"moe_policylang"`` experts implementation via HF's official
 ``ExpertsInterface`` API.  When active, expert weights live on CPU and
 are copied to GPU on-demand based on the DSL policy's cache decisions.
 
@@ -9,7 +9,7 @@ HF's own ``batched_mm`` and ``grouped_mm`` backends use.
 
 Integration flow:
     1. ``attach()`` registers the backend and sets
-       ``config._experts_implementation = "moe_sched"``
+       ``config._experts_implementation = "moe_policylang"``
     2. Each MoE layer's ``Experts.forward()`` dispatches to our backend
     3. Our backend:
        a. Feeds expert selections to the PolicyHook
@@ -28,10 +28,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 if TYPE_CHECKING:
-    from moe_sched.integrations.weight_placement import WeightPlacementManager
+    from moe_policylang.integrations.weight_placement import WeightPlacementManager
 
 
-def _moe_sched_experts_forward(
+def _moe_policylang_experts_forward(
     self: nn.Module,
     hidden_states: torch.Tensor,
     top_k_index: torch.Tensor,
@@ -40,11 +40,11 @@ def _moe_sched_experts_forward(
     """Policy-controlled expert offloading forward.
 
     This replaces the default eager loop with one that:
-    - Feeds router decisions to the MoE-Sched policy
+    - Feeds router decisions to the MoE-PolicyLang policy
     - Copies only needed expert weight slices from CPU to GPU
     - Runs computation identically to HF's eager implementation
     """
-    ctx = self._moe_sched_ctx
+    ctx = self._moe_policylang_ctx
     mgr: WeightPlacementManager = ctx["mgr"]
     layer_idx: int = ctx["layer_idx"]
     gpu_device: torch.device = ctx["gpu_device"]
@@ -116,10 +116,10 @@ def _evict_from_gpu_cache(ctx: dict, expert_id: int) -> None:
 
 
 def register_backend() -> None:
-    """Register the 'moe_sched' experts backend with HuggingFace."""
+    """Register the 'moe_policylang' experts backend with HuggingFace."""
     try:
         from transformers.integrations.moe import ExpertsInterface
-        ExpertsInterface.register("moe_sched", _moe_sched_experts_forward)
+        ExpertsInterface.register("moe_policylang", _moe_policylang_experts_forward)
     except ImportError:
         raise ImportError(
             "HuggingFace Transformers >= 4.51 required for experts backend. "
@@ -131,11 +131,11 @@ def install_backend(
     model: nn.Module,
     mgr: "WeightPlacementManager",
 ) -> list[dict]:
-    """Activate the moe_sched backend on a loaded model.
+    """Activate the moe_policylang backend on a loaded model.
 
     1. Moves expert weight tensors to CPU
     2. Attaches per-layer context to each Experts module
-    3. Sets config._experts_implementation = "moe_sched"
+    3. Sets config._experts_implementation = "moe_policylang"
 
     Returns the list of per-layer context dicts (for cleanup).
     """
@@ -167,7 +167,7 @@ def install_backend(
             "expert_bytes": expert_bytes,
             "gpu_cache": {},  # {expert_id: {"gate_up": Tensor, "down": Tensor}}
         }
-        experts_mod._moe_sched_ctx = ctx
+        experts_mod._moe_policylang_ctx = ctx
         contexts.append(ctx)
 
     # Install eviction callback: when the policy cache evicts an expert,
@@ -195,7 +195,7 @@ def install_backend(
         cache.secondary.on_evict = _evict_handler
 
     # Activate the backend
-    model.config._experts_implementation = "moe_sched"
+    model.config._experts_implementation = "moe_policylang"
 
     return contexts
 

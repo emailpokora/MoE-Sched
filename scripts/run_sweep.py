@@ -15,9 +15,9 @@ import glob
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from moe_sched.compiler import compile_policy
-from moe_sched.runtime.hooks import build_hook
-from moe_sched.dsl import MoESched
+from moe_policylang.compiler import compile_policy
+from moe_policylang.runtime.hooks import build_hook
+from moe_policylang.dsl import MoEPolicyLang
 
 TRACES_DIR = os.path.join(ROOT, "traces")
 
@@ -41,7 +41,7 @@ def run_sweep(trace_path):
 
     sweep_results = []
     for cap in [2, 3, 4, 5, 6, 7, 8]:
-        sched = MoESched()
+        sched = MoEPolicyLang()
         ir = (
             sched.build(f"lru_{cap}")
             .cache(capacity=cap, eviction="lru")
@@ -71,7 +71,7 @@ def run_sweep(trace_path):
 
     eviction_results = []
     for ev_name in ["lru", "lfu"]:
-        sched = MoESched()
+        sched = MoEPolicyLang()
         kw = dict(capacity=4, eviction=ev_name)
         if ev_name == "lfu":
             kw["lfu_decay"] = 0.9
@@ -108,7 +108,7 @@ def run_sweep(trace_path):
 
     ablation_results = []
     for label, cache_kw, pf_kw, sched_kw in ablation_configs:
-        sched = MoESched()
+        sched = MoEPolicyLang()
 
         @sched.policy
         def ablation_policy(p, _ck=cache_kw, _pk=pf_kw, _sk=sched_kw):

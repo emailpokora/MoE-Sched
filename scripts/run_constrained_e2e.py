@@ -3,7 +3,7 @@
 """Live MoE inference experiment on consumer GPU.
 
 Runs OLMoE-1B-7B (7B params, 64 experts, top-8) on an RTX 5080 Laptop GPU
-with MoE-Sched hooks attached.  Compares throughput and cache statistics
+with MoE-PolicyLang hooks attached.  Compares throughput and cache statistics
 across different caching policies during real autoregressive generation.
 
 Outputs:
@@ -113,10 +113,10 @@ def benchmark(model, tokenizer, prompts, max_new_tokens, warmup=1, label=""):
     return summary
 
 
-# ── MoE-Sched hook wiring ───────────────────────────────────────────
+# ── MoE-PolicyLang hook wiring ───────────────────────────────────────────
 
 def attach_hooks(model, hook_obj):
-    """Attach MoE-Sched PolicyHook to OLMoE router layers."""
+    """Attach MoE-PolicyLang PolicyHook to OLMoE router layers."""
     handles = []
     dispatch_times: List[float] = []
 
@@ -151,11 +151,11 @@ def attach_hooks(model, hook_obj):
 
 def get_policies():
     """Return dict of policy_name → (compiled_policy, use_per_layer)."""
-    from moe_sched.ir import (
+    from moe_policylang.ir import (
         PolicyIR, CacheIR, PrefetchIR, ScheduleIR,
         EvictionPolicy, PrefetchStrategy, ScheduleMode,
     )
-    from moe_sched.compiler import compile_policy
+    from moe_policylang.compiler import compile_policy
 
     policies = {}
 
@@ -229,14 +229,14 @@ def main():
 
     # ── Baseline: vanilla (no hooks) ──
     print("\n" + "=" * 60)
-    print("1. BASELINE — Vanilla HuggingFace (no MoE-Sched)")
+    print("1. BASELINE — Vanilla HuggingFace (no MoE-PolicyLang)")
     print("=" * 60)
     vanilla = benchmark(model, tokenizer, PROMPTS, MAX_NEW_TOKENS,
                         warmup=NUM_WARMUP, label="vanilla")
 
     # ── Policy experiments ──
-    from moe_sched.runtime.hooks import build_hook
-    from moe_sched.runtime.per_layer import PerLayerHook, PerLayerConfig
+    from moe_policylang.runtime.hooks import build_hook
+    from moe_policylang.runtime.per_layer import PerLayerHook, PerLayerConfig
 
     policies = get_policies()
     all_results = {"vanilla": vanilla}

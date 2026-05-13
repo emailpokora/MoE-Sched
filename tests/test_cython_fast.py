@@ -14,10 +14,10 @@ import time
 
 # Skip if Cython modules not built
 try:
-    from moe_sched.runtime._fast import FAST_PATH_AVAILABLE
+    from moe_policylang.runtime._fast import FAST_PATH_AVAILABLE
     if not FAST_PATH_AVAILABLE:
         raise ImportError
-    from moe_sched.runtime._fast import (
+    from moe_policylang.runtime._fast import (
         LRUCacheFast,
         LFUCacheFast,
         GPUOnlySchedulerFast,
@@ -27,8 +27,8 @@ try:
 except ImportError:
     pytest.skip("Cython fast path not built", allow_module_level=True)
 
-from moe_sched.runtime.cache import LRUCache, LFUCache
-from moe_sched.runtime.scheduler import (
+from moe_policylang.runtime.cache import LRUCache, LFUCache
+from moe_policylang.runtime.scheduler import (
     GPUOnlyScheduler,
     CPUFallbackScheduler,
     HybridScheduler,

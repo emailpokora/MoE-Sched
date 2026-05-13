@@ -7,7 +7,7 @@ benchmarks and evaluation.
 Status: STUB — implement as part of Phase 1.
 
 Usage (planned):
-    from moe_sched.integrations.trace_recorder import record_trace
+    from moe_policylang.integrations.trace_recorder import record_trace
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     model = AutoModelForCausalLM.from_pretrained("mistralai/Mixtral-8x7B-v0.1", ...)

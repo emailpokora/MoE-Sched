@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from moe_sched import (
+from moe_policylang import (
     CacheIR,
     EvictionPolicy,
     MonitorIR,
@@ -24,7 +24,7 @@ from moe_sched import (
     compile_policy,
     parse_policy,
 )
-from moe_sched.integrations.mock_moe import MockMoEModel, skewed_selector
+from moe_policylang.integrations.mock_moe import MockMoEModel, skewed_selector
 
 
 def _run(hook, *, selector=None, num_tokens=30, num_layers=12, num_experts=32):

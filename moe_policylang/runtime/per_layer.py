@@ -1,4 +1,4 @@
-"""Per-layer adaptive policy support for MoE-Sched.
+"""Per-layer adaptive policy support for MoE-PolicyLang.
 
 Instead of applying one global cache policy across all layers, this module
 enables assigning different cache capacities and eviction strategies per
@@ -7,7 +7,7 @@ layer based on observed routing entropy.  Layers with concentrated routing
 need larger caches.
 
 Usage via Python eDSL:
-    sched = MoESched()
+    sched = MoEPolicyLang()
     @sched.policy
     def per_layer_adaptive(p):
         p.cache(capacity=8, eviction='lfu')
@@ -36,9 +36,9 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence
 
-from moe_sched.compiler import CompiledPolicy, compile_policy
-from moe_sched.ir import CacheIR, PolicyIR
-from moe_sched.runtime.hooks import DispatchPlan, ExpertDispatch, PolicyHook
+from moe_policylang.compiler import CompiledPolicy, compile_policy
+from moe_policylang.ir import CacheIR, PolicyIR
+from moe_policylang.runtime.hooks import DispatchPlan, ExpertDispatch, PolicyHook
 
 
 # ---------------------------------------------------------------------------

@@ -2,8 +2,8 @@
 
 import pytest
 
-from moe_sched.compiler import CompiledPolicy, compile_policy
-from moe_sched.ir import (
+from moe_policylang.compiler import CompiledPolicy, compile_policy
+from moe_policylang.ir import (
     CacheIR,
     EvictionPolicy,
     MonitorIR,
@@ -13,26 +13,26 @@ from moe_sched.ir import (
     ScheduleIR,
     ScheduleMode,
 )
-from moe_sched.runtime.cache import (
+from moe_policylang.runtime.cache import (
     FreqThresholdCache,
     LFUCache,
     LRUCache,
     ScoreCache,
 )
-from moe_sched.runtime.monitor import Monitor
-from moe_sched.runtime.prefetch import (
+from moe_policylang.runtime.monitor import Monitor
+from moe_policylang.runtime.prefetch import (
     AffinityPrefetcher,
     HistoryPrefetcher,
     NullPrefetcher,
 )
-from moe_sched.runtime.scheduler import (
+from moe_policylang.runtime.scheduler import (
     CPUFallbackScheduler,
     GPUOnlyScheduler,
     HybridScheduler,
 )
-from moe_sched.runtime._fast import FAST_PATH_AVAILABLE
+from moe_policylang.runtime._fast import FAST_PATH_AVAILABLE
 if FAST_PATH_AVAILABLE:
-    from moe_sched.runtime._fast import (
+    from moe_policylang.runtime._fast import (
         LRUCacheFast, LFUCacheFast,
         GPUOnlySchedulerFast, CPUFallbackSchedulerFast, HybridSchedulerFast,
     )
@@ -221,6 +221,6 @@ class TestCompileRoundTrip:
 
     def test_compiled_scheduler_is_functional(self, full_ir):
         cp = compile_policy(full_ir)
-        from moe_sched.runtime.scheduler import ExecutionDevice
+        from moe_policylang.runtime.scheduler import ExecutionDevice
         device = cp.scheduler.decide(0, is_cached=True)
         assert device is ExecutionDevice.GPU

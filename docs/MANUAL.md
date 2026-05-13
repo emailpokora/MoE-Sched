@@ -1,8 +1,8 @@
-# MoE-Sched Language Manual
+# MoE-PolicyLang Language Manual
 
 > Author: **Jesse Pokora** &middot; License: [MIT](../LICENSE)
 
-A complete guide to the MoE-Sched domain-specific language for declaring
+A complete guide to the MoE-PolicyLang domain-specific language for declaring
 expert caching, prefetching, and scheduling policies for Mixture-of-Experts
 inference.
 
@@ -10,7 +10,7 @@ inference.
 
 ## Table of Contents
 
-1. [What Is MoE-Sched?](#1-what-is-moe-sched)
+1. [What Is MoE-PolicyLang?](#1-what-is-moe-policylang)
 2. [Quick Start](#2-quick-start)
 3. [Two Frontends](#3-two-frontends)
    - [.moe File Syntax](#31-moe-file-syntax)
@@ -35,7 +35,7 @@ inference.
 
 ---
 
-## 1. What Is MoE-Sched?
+## 1. What Is MoE-PolicyLang?
 
 ### The Problem
 
@@ -99,7 +99,7 @@ Several systems already perform expert scheduling — but each one
 | **DeepSpeed-MoE** | Expert parallelism across GPUs | Assumes multi-GPU, no single-GPU caching |
 | **vLLM** | PagedAttention for KV-cache | No explicit expert caching policy — relies on PyTorch memory |
 
-The novelty of MoE-Sched is not any single eviction strategy.  It is the
+The novelty of MoE-PolicyLang is not any single eviction strategy.  It is the
 **separation of concerns**:
 
 - **Policy as data, not code** — a 10-line `.moe` file replaces 300+ lines
@@ -117,9 +117,9 @@ This is the same idea as SQL vs. hand-written B-tree traversals, or CSS vs.
 inline rendering code.  The individual techniques exist — the DSL
 abstraction over them does not.
 
-### What MoE-Sched Does
+### What MoE-PolicyLang Does
 
-MoE-Sched is a **domain-specific language and runtime** that decouples
+MoE-PolicyLang is a **domain-specific language and runtime** that decouples
 scheduling policy from the inference engine.  Instead of writing hundreds of
 lines of runtime code, you write a short `.moe` policy file:
 
@@ -131,7 +131,7 @@ policy my_policy {
 }
 ```
 
-The MoE-Sched compiler translates this declaration into an efficient runtime
+The MoE-PolicyLang compiler translates this declaration into an efficient runtime
 **hook** — a callback that the inference engine invokes on every MoE layer
 forward pass.
 
@@ -176,7 +176,7 @@ CPU-to-GPU transfer is required.
 
 ### Four Orthogonal Policy Axes
 
-Every MoE-Sched policy is a composition of four independent axes:
+Every MoE-PolicyLang policy is a composition of four independent axes:
 
 | Axis | Controls | Options |
 |------|----------|---------|
@@ -189,9 +189,9 @@ These axes are orthogonal — any eviction strategy works with any prefetch
 strategy and any scheduling mode.  The DSL makes this composability
 explicit.
 
-### What MoE-Sched Is *Not*
+### What MoE-PolicyLang Is *Not*
 
-| MoE-Sched can | MoE-Sched cannot |
+| MoE-PolicyLang can | MoE-PolicyLang cannot |
 |---------------|-------------------|
 | Manage expert caching, prefetch, and scheduling for one MoE model | Compose or route between multiple different models |
 | Adaptively tune policy parameters based on runtime metrics | Perform model parallelism or tensor sharding |
@@ -199,7 +199,7 @@ explicit.
 | Integrate with HuggingFace Transformers as a hook | Manage training workloads — inference only |
 | Simulate policies offline using recorded routing traces | Perform hardware-level GPU memory management |
 
-MoE-Sched is analogous to an OS page-replacement policy, but specialized
+MoE-PolicyLang is analogous to an OS page-replacement policy, but specialized
 for MoE expert weights.  It makes MoE inference faster and more
 memory-efficient — it does not create a multi-model serving fabric.
 
@@ -230,7 +230,7 @@ policy my_first_policy {
 ### Load and Run
 
 ```python
-from moe_sched import parse_file, compile_policy, build_hook
+from moe_policylang import parse_file, compile_policy, build_hook
 
 # Parse the .moe file
 policies = parse_file("my_policy.moe")
@@ -252,9 +252,9 @@ for layer_idx, experts, scores in inference_events:
 ### Or Use the Python eDSL
 
 ```python
-from moe_sched import MoESched, compile_policy, build_hook
+from moe_policylang import MoEPolicyLang, compile_policy, build_hook
 
-sched = MoESched()
+sched = MoEPolicyLang()
 
 @sched.policy
 def my_first_policy(p):
@@ -268,7 +268,7 @@ hook = build_hook(compiled)
 
 ## 3. Two Frontends
 
-MoE-Sched provides two equivalent ways to define policies. Both produce
+MoE-PolicyLang provides two equivalent ways to define policies. Both produce
 the same intermediate representation (PolicyIR) and are fully interchangeable.
 
 ### 3.1 .moe File Syntax
@@ -314,7 +314,7 @@ policy careful_lfu {
 
 **Loading:**
 ```python
-from moe_sched import parse_file, parse_policy, parse_policies
+from moe_policylang import parse_file, parse_policy, parse_policies
 
 # From a file
 policies = parse_file("path/to/policies.moe")
@@ -335,9 +335,9 @@ ir = parse_policy("""
 Define policies using Python decorators — useful for programmatic generation.
 
 ```python
-from moe_sched import MoESched
+from moe_policylang import MoEPolicyLang
 
-sched = MoESched()
+sched = MoEPolicyLang()
 
 @sched.policy
 def my_policy(p):
@@ -361,7 +361,7 @@ ir = sched.policies['my_policy']
 Method-chaining alternative for inline policy construction:
 
 ```python
-sched = MoESched()
+sched = MoEPolicyLang()
 
 ir = (sched.build("my_policy")
     .cache(capacity=16, eviction='lfu', lfu_decay=0.9)
@@ -662,9 +662,9 @@ policy adaptive_switcher {
 ### Python eDSL
 
 ```python
-from moe_sched import MoESched, AdaptRule, AdaptCondition, AdaptAction
+from moe_policylang import MoEPolicyLang, AdaptRule, AdaptCondition, AdaptAction
 
-sched = MoESched()
+sched = MoEPolicyLang()
 
 @sched.policy
 def adaptive_policy(p):
@@ -737,8 +737,8 @@ have different routing characteristics. Per-layer adaptive caching maintains
 ### Usage
 
 ```python
-from moe_sched.ir import PolicyIR, CacheIR, EvictionPolicy
-from moe_sched.runtime.per_layer import PerLayerHook, PerLayerConfig
+from moe_policylang.ir import PolicyIR, CacheIR, EvictionPolicy
+from moe_policylang.runtime.per_layer import PerLayerHook, PerLayerConfig
 
 # Base policy (capacity is the per-layer default)
 ir = PolicyIR(
@@ -810,7 +810,7 @@ print(stats["per_layer"])   # per-layer hit rates
 ### Compiling a Policy
 
 ```python
-from moe_sched import compile_policy, build_hook
+from moe_policylang import compile_policy, build_hook
 
 # From any PolicyIR (parsed or built)
 compiled = compile_policy(ir)
@@ -888,7 +888,7 @@ optimal configurations for a given workload trace.
 ### Basic Usage
 
 ```python
-from moe_sched.autotuner import autotune
+from moe_policylang.autotuner import autotune
 import json
 
 # Load a trace
@@ -906,7 +906,7 @@ print(f"Parameters: {best.params}")
 ### Custom Grid
 
 ```python
-from moe_sched.autotuner import autotune
+from moe_policylang.autotuner import autotune
 
 custom_grid = {
     "capacity": [8, 16, 32, 48],
@@ -994,7 +994,7 @@ early:
 **Validation errors include all violated rules at once:**
 
 ```python
-from moe_sched import parse_policy
+from moe_policylang import parse_policy
 
 try:
     ir = parse_policy("""
@@ -1012,7 +1012,7 @@ except Exception as e:
 
 ## 10. Working with Traces
 
-MoE-Sched uses expert activation traces in JSONL format for offline
+MoE-PolicyLang uses expert activation traces in JSONL format for offline
 evaluation and autotuning.
 
 ### Trace Format
@@ -1053,7 +1053,7 @@ layers to capture router decisions.
 ### Replaying Traces
 
 ```python
-from moe_sched import parse_policy, compile_policy, build_hook
+from moe_policylang import parse_policy, compile_policy, build_hook
 
 ir = parse_policy("""
     policy test { cache { capacity = 16  eviction = lfu  frequency_decay = 0.9 } }
@@ -1170,7 +1170,7 @@ policy deepseek_optimized {
 
 ### 11.1 Reproducing Published Systems
 
-MoE-Sched can express the expert management strategies of all nine surveyed
+MoE-PolicyLang can express the expert management strategies of all nine surveyed
 MoE serving systems:
 
 **ExpertFlow** (score-based + lookahead prefetch):
@@ -1254,7 +1254,7 @@ policy promoe {
 
 | Class | Description |
 |-------|-------------|
-| `MoESched` | Entry point — `@sched.policy` decorator + `sched.build()` |
+| `MoEPolicyLang` | Entry point — `@sched.policy` decorator + `sched.build()` |
 | `PolicyIR` | Intermediate representation of a complete policy |
 | `CacheIR` | Cache configuration IR |
 | `PrefetchIR` | Prefetch configuration IR |
@@ -1297,25 +1297,25 @@ Returns `(best_result, top_k_results)` where each result contains
 
 Both are importable from the top-level package:
 ```python
-from moe_sched import DSLError, ValidationError
+from moe_policylang import DSLError, ValidationError
 ```
 
 ---
 
 ## 13. Command-Line Interface
 
-MoE-Sched provides a CLI for validating and inspecting `.moe` files.
+MoE-PolicyLang provides a CLI for validating and inspecting `.moe` files.
 
 ### Usage
 
 ```bash
 # Via python -m
-python -m moe_sched validate examples/*.moe
-python -m moe_sched parse examples/composed_policy.moe
-python -m moe_sched version
+python -m moe_policylang validate examples/*.moe
+python -m moe_policylang parse examples/composed_policy.moe
+python -m moe_policylang version
 
 # Via entry point (after pip install)
-moe-sched validate examples/*.moe
+moe-policylang validate examples/*.moe
 ```
 
 ### Commands
@@ -1324,12 +1324,12 @@ moe-sched validate examples/*.moe
 |---------|-------------|
 | `validate FILE [FILE ...]` | Parse and validate one or more `.moe` files.  Reports pass/fail per file with policy names. |
 | `parse FILE` | Parse a `.moe` file and print the IR (cache, prefetch, schedule, monitor, adapt rules). |
-| `version` | Print the MoE-Sched version. |
+| `version` | Print the MoE-PolicyLang version. |
 
 ### Example Output
 
 ```
-$ moe-sched validate examples/lru_policy.moe examples/composed_policy.moe
+$ moe-policylang validate examples/lru_policy.moe examples/composed_policy.moe
   ✓ examples/lru_policy.moe  (1 policy: lru_baseline)
   ✓ examples/composed_policy.moe  (1 policy: composed_showcase)
 
@@ -1337,7 +1337,7 @@ $ moe-sched validate examples/lru_policy.moe examples/composed_policy.moe
 ```
 
 ```
-$ moe-sched parse examples/composed_policy.moe
+$ moe-policylang parse examples/composed_policy.moe
 Policy: composed_showcase
   Cache:    capacity=24  eviction=lfu
             pin=[0]

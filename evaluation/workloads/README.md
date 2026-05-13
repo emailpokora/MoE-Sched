@@ -1,8 +1,8 @@
 # Workloads
 
-> Part of [MoE-Sched](../../README.md) by **Jesse Pokora** &middot; [MIT License](../../LICENSE)
+> Part of [MoE-PolicyLang](../../README.md) by **Jesse Pokora** &middot; [MIT License](../../LICENSE)
 
-Workload definitions and trace sources for MoE-Sched benchmarks.
+Workload definitions and trace sources for MoE-PolicyLang benchmarks.
 
 ## Trace Sources
 

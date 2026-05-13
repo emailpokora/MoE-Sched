@@ -1,6 +1,6 @@
-"""MoE-Sched benchmark suite for policy evaluation."""
+"""MoE-PolicyLang benchmark suite for policy evaluation."""
 
-from moe_sched.benchmark.workloads import (
+from moe_policylang.benchmark.workloads import (
     Workload,
     short_prompt_workload,
     long_context_workload,
@@ -8,8 +8,8 @@ from moe_sched.benchmark.workloads import (
     bursty_workload,
     ALL_WORKLOADS,
 )
-from moe_sched.benchmark.harness import BenchmarkResult, BenchmarkHarness
-from moe_sched.benchmark.metrics import MetricsSummary, compute_metrics
+from moe_policylang.benchmark.harness import BenchmarkResult, BenchmarkHarness
+from moe_policylang.benchmark.metrics import MetricsSummary, compute_metrics
 
 __all__ = [
     "Workload",

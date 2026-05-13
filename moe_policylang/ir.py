@@ -1,4 +1,4 @@
-"""Intermediate Representation for MoE-Sched policies."""
+"""Intermediate Representation for MoE-PolicyLang policies."""
 
 from __future__ import annotations
 

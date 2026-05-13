@@ -1,6 +1,6 @@
 # Notebooks
 
-> Part of [MoE-Sched](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
+> Part of [MoE-PolicyLang](../README.md) by **Jesse Pokora** &middot; [MIT License](../LICENSE)
 
 Jupyter notebooks for trace recording, profiling, and evaluation.
 GPU experiments run on **Google Colab** with an A100 runtime.
@@ -18,15 +18,15 @@ GPU experiments run on **Google Colab** with an A100 runtime.
 
 ## Setup
 
-1. Upload `moe_sched/` package to Colab (or mount from Google Drive)
+1. Upload `moe_policylang/` package to Colab (or mount from Google Drive)
 2. Each notebook installs its own dependencies in the first cell
 3. Results are saved to Google Drive for local analysis
 
 ## Google Drive Layout
 
 ```
-My Drive/moe-sched-paper/
-├── moe_sched/          # Package source
+My Drive/moe-policylang-paper/
+├── moe_policylang/          # Package source
 ├── traces/             # Recorded traces (.jsonl)
 ├── results/            # Experiment outputs (JSON, PDF)
 └── checkpoints/        # Model cache
@@ -35,7 +35,7 @@ My Drive/moe-sched-paper/
 ## Reproducing on Local Hardware
 
 The live inference experiment (`scripts/run_constrained_e2e.py`) runs
-OLMoE-1B-7B with MoE-Sched hooks on a consumer GPU — no Colab required.
+OLMoE-1B-7B with MoE-PolicyLang hooks on a consumer GPU — no Colab required.
 
 ### Requirements
 

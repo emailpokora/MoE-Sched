@@ -1,5 +1,5 @@
 version 0.6
-# Phase 5.4: MoE-Infinity's sparsity-aware caching in MoE-Sched DSL
+# Phase 5.4: MoE-Infinity's sparsity-aware caching in MoE-PolicyLang DSL
 # MoE-Infinity uses LFU-style frequency tracking with sparsity-aware prefetch.
 #
 # Reference: Xue et al. "MoE-Infinity" arXiv:2401.14361

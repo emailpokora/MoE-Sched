@@ -1,14 +1,14 @@
-"""Command-line interface for MoE-Sched.
+"""Command-line interface for MoE-PolicyLang.
 
 Usage:
-    moe-sched validate FILE [FILE ...]   Parse and validate .moe policy files.
-    moe-sched parse FILE                 Parse a .moe file and print the IR.
-    moe-sched version                    Print the MoE-Sched version.
+    moe-policylang validate FILE [FILE ...]   Parse and validate .moe policy files.
+    moe-policylang parse FILE                 Parse a .moe file and print the IR.
+    moe-policylang version                    Print the MoE-PolicyLang version.
 
 Examples:
-    moe-sched validate examples/lru_policy.moe
-    moe-sched parse examples/composed_policy.moe
-    python -m moe_sched validate examples/*.moe
+    moe-policylang validate examples/lru_policy.moe
+    moe-policylang parse examples/composed_policy.moe
+    python -m moe_policylang validate examples/*.moe
 """
 
 from __future__ import annotations
@@ -17,9 +17,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from moe_sched import __version__
-from moe_sched.errors import DSLError, ValidationError
-from moe_sched.parser import parse_file
+from moe_policylang import __version__
+from moe_policylang.errors import DSLError, ValidationError
+from moe_policylang.parser import parse_file
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:
@@ -79,14 +79,14 @@ def _cmd_parse(args: argparse.Namespace) -> int:
 
 def _cmd_version(_args: argparse.Namespace) -> int:
     """Print version."""
-    print(f"moe-sched {__version__}")
+    print(f"moe-policylang {__version__}")
     return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="moe-sched",
-        description="MoE-Sched: Domain-specific language for MoE expert scheduling policies.",
+        prog="moe-policylang",
+        description="MoE-PolicyLang: Domain-specific language for MoE expert scheduling policies.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = parser.add_subparsers(dest="command")

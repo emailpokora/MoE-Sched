@@ -1,20 +1,20 @@
-"""HuggingFace Transformers integration for MoE-Sched policy hooks.
+"""HuggingFace Transformers integration for MoE-PolicyLang policy hooks.
 
 This module installs a ``PolicyHook`` into a HuggingFace MoE model
 (Mixtral, Qwen1.5-MoE, DeepSeek-V3, ...) by monkey-patching each MoE layer's
 forward method to invoke the hook on the router-selected experts.
 
 The integration is deliberately best-effort and **optional** — the core
-MoE-Sched pipeline (DSL → IR → compile → hook) is framework-agnostic and
+MoE-PolicyLang pipeline (DSL → IR → compile → hook) is framework-agnostic and
 does not depend on torch or transformers.  This module only activates when
 a caller explicitly imports it and has those packages installed.
 
 Typical usage:
 
     from transformers import AutoModelForCausalLM
-    from moe_sched import parse_file, compile_policy
-    from moe_sched.runtime.hooks import build_hook
-    from moe_sched.integrations.huggingface import install_policy_hook
+    from moe_policylang import parse_file, compile_policy
+    from moe_policylang.runtime.hooks import build_hook
+    from moe_policylang.integrations.huggingface import install_policy_hook
 
     [ir] = parse_file("examples/lru_policy.moe")
     hook = build_hook(compile_policy(ir))
@@ -30,7 +30,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional
 
-from moe_sched.runtime.hooks import PolicyHook
+from moe_policylang.runtime.hooks import PolicyHook
 
 # Names of attributes on each MoE layer that expose router output.  We search
 # these in order; the first match wins.  Extend for new model families.
@@ -60,14 +60,14 @@ def install_policy_hook(
         * The scaffold validates that the model has iterable layers, locates
           MoE sub-modules, and installs a pre-forward wrapper that captures
           the selected-experts tensor and calls ``hook.on_layer``.
-        * For heavy end-to-end testing, prefer ``moe_sched.integrations.mock_moe``.
+        * For heavy end-to-end testing, prefer ``moe_policylang.integrations.mock_moe``.
     """
     try:
         import torch  # noqa: F401
     except ImportError as e:
         raise RuntimeError(
             "install_policy_hook requires torch.  Install torch+transformers "
-            "or use moe_sched.integrations.mock_moe for framework-free testing."
+            "or use moe_policylang.integrations.mock_moe for framework-free testing."
         ) from e
 
     candidates = list(layer_attr_candidates or _ROUTER_ATTRS)

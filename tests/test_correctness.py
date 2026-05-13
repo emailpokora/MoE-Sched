@@ -11,9 +11,9 @@ assert their per-step dispatch sequences agree on:
   * whether it was a cache hit or miss
   * whether it executes on GPU or CPU
 
-The reference implementations in ``moe_sched.baselines`` are
+The reference implementations in ``moe_policylang.baselines`` are
 intentionally built with plain dicts / OrderedDicts and share no code with
-``moe_sched.runtime.cache``, so agreement between the two is meaningful
+``moe_policylang.runtime.cache``, so agreement between the two is meaningful
 evidence that the DSL→IR→compile→hook pipeline preserves semantics.
 """
 
@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import pytest
 
-from moe_sched import (
+from moe_policylang import (
     CacheIR,
     EvictionPolicy,
     PolicyIR,
@@ -31,14 +31,14 @@ from moe_sched import (
     compile_policy,
     parse_policy,
 )
-from moe_sched.baselines import HandCodedLRU, HandCodedLRUFallback
-from moe_sched.integrations.mock_moe import (
+from moe_policylang.baselines import HandCodedLRU, HandCodedLRUFallback
+from moe_policylang.integrations.mock_moe import (
     MockMoEModel,
     deterministic_trace_selector,
     skewed_selector,
     uniform_selector,
 )
-from moe_sched.runtime.scheduler import ExecutionDevice
+from moe_policylang.runtime.scheduler import ExecutionDevice
 
 
 # ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-"""Standardised workload definitions for MoE-Sched benchmarks.
+"""Standardised workload definitions for MoE-PolicyLang benchmarks.
 
 Each workload encapsulates:
   * A human-readable name and description.

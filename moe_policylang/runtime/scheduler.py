@@ -1,4 +1,4 @@
-"""CPU/GPU execution scheduler for MoE-Sched runtime."""
+"""CPU/GPU execution scheduler for MoE-PolicyLang runtime."""
 
 from __future__ import annotations
 

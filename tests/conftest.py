@@ -1,10 +1,10 @@
-"""Shared fixtures for MoE-Sched tests."""
+"""Shared fixtures for MoE-PolicyLang tests."""
 
 import random
 
 import pytest
 
-from moe_sched.ir import (
+from moe_policylang.ir import (
     CacheIR,
     EvictionPolicy,
     MonitorIR,

@@ -1,6 +1,6 @@
 """Adaptive policy support — runtime policy switching based on profiling data.
 
-Extends MoE-Sched with declarative ``adapt`` blocks that monitor runtime
+Extends MoE-PolicyLang with declarative ``adapt`` blocks that monitor runtime
 metrics (hit_rate, eviction_rate, etc.) and dynamically adjust policy
 parameters when conditions are met.  This makes the profiling strategy
 part of the policy rules, enabling automatic expert placement adaptation.
@@ -16,7 +16,7 @@ Example DSL syntax:
     }
 
 Example Python eDSL:
-    sched = MoESched()
+    sched = MoEPolicyLang()
     @sched.policy
     def my_adaptive(p):
         p.cache(capacity=16, eviction='lfu', lfu_decay=0.9)
@@ -39,7 +39,7 @@ from typing import Callable, List, Optional, Sequence, TYPE_CHECKING
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from moe_sched.runtime.hooks import PolicyHook
+    from moe_policylang.runtime.hooks import PolicyHook
 
 
 # ---------------------------------------------------------------------------
@@ -213,7 +213,7 @@ class AdaptiveHook:
     def _apply(self, rule_idx: int, rule: AdaptRule) -> None:
         """Apply an adaptation action by modifying IR and recompiling."""
         import copy
-        from moe_sched.ir import EvictionPolicy, PrefetchStrategy, ScheduleMode
+        from moe_policylang.ir import EvictionPolicy, PrefetchStrategy, ScheduleMode
 
         self._last_fired[rule_idx] = self._step
 
@@ -263,8 +263,8 @@ class AdaptiveHook:
                 applied = True
 
         if applied:
-            from moe_sched.runtime.hooks import PolicyHook
-            from moe_sched.validator import validate_policy
+            from moe_policylang.runtime.hooks import PolicyHook
+            from moe_policylang.validator import validate_policy
 
             try:
                 validate_policy(new_ir)

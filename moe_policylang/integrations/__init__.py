@@ -1,11 +1,11 @@
-"""Integration adapters that connect MoE-Sched hooks to inference engines."""
+"""Integration adapters that connect MoE-PolicyLang hooks to inference engines."""
 
-from moe_sched.integrations.mock_moe import MockMoEModel, run_mock_inference
-from moe_sched.integrations.weight_placement import (
+from moe_policylang.integrations.mock_moe import MockMoEModel, run_mock_inference
+from moe_policylang.integrations.weight_placement import (
     ExpertAccessor,
     WeightPlacementManager,
 )
-from moe_sched.integrations.accessors import auto_accessor
+from moe_policylang.integrations.accessors import auto_accessor
 
 
 def auto_manage(model, hook, gpu_device=0):
@@ -21,10 +21,10 @@ def auto_manage(model, hook, gpu_device=0):
 
 
 def attach(model, policy, gpu_device=0):
-    """Attach a MoE-Sched policy to a HuggingFace MoE model.
+    """Attach a MoE-PolicyLang policy to a HuggingFace MoE model.
 
     This is the primary user-facing API. After calling this, use the model
-    normally — MoE-Sched manages expert placement based on the policy.
+    normally — MoE-PolicyLang manages expert placement based on the policy.
 
     ``policy`` can be:
       - A DSL string (parsed and compiled automatically)
@@ -32,9 +32,9 @@ def attach(model, policy, gpu_device=0):
 
     Usage with DSL string::
 
-        import moe_sched
+        import moe_policylang
 
-        mgr = moe_sched.attach(model, '''
+        mgr = moe_policylang.attach(model, '''
             policy my_lfu {
                 cache { capacity = 32  eviction = lfu  frequency_decay = 0.9 }
                 prefetch { strategy = history  budget = 4 }
@@ -46,12 +46,12 @@ def attach(model, policy, gpu_device=0):
     Returns:
         WeightPlacementManager with hooks installed.
     """
-    from moe_sched.compiler import compile_policy
-    from moe_sched.ir import PolicyIR
-    from moe_sched.runtime.hooks import build_hook
+    from moe_policylang.compiler import compile_policy
+    from moe_policylang.ir import PolicyIR
+    from moe_policylang.runtime.hooks import build_hook
 
     if isinstance(policy, str):
-        from moe_sched.parser import parse_policy
+        from moe_policylang.parser import parse_policy
         policy = parse_policy(policy)
     elif not isinstance(policy, PolicyIR):
         raise TypeError(

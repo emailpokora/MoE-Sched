@@ -2,7 +2,7 @@
 
 import pytest
 
-from moe_sched.runtime.cache import (
+from moe_policylang.runtime.cache import (
     CacheStats,
     FreqThresholdCache,
     LFUCache,

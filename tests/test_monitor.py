@@ -2,7 +2,7 @@
 
 import pytest
 
-from moe_sched.runtime.monitor import Monitor, MonitorSnapshot
+from moe_policylang.runtime.monitor import Monitor, MonitorSnapshot
 
 
 class TestMonitorSnapshot:

@@ -2,7 +2,7 @@
 
 import pytest
 
-from moe_sched.runtime.prefetch import (
+from moe_policylang.runtime.prefetch import (
     AffinityPrefetcher,
     HistoryPrefetcher,
     NullPrefetcher,

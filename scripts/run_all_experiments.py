@@ -26,14 +26,14 @@ def main():
                         help="Output directory for results")
     parser.add_argument("--skip-baselines", action="store_true",
                         help="Skip vLLM/MoE-Infinity baselines")
-    parser.add_argument("--skip-moe-sched", action="store_true",
-                        help="Skip MoE-Sched policy runs")
+    parser.add_argument("--skip-moe-policylang", action="store_true",
+                        help="Skip MoE-PolicyLang policy runs")
     args = parser.parse_args()
 
     print("Phase 4: Full Evaluation Suite — NOT YET IMPLEMENTED")
     print()
     print("This script will:")
-    print("  1. Run all MoE-Sched policies × workloads × hardware configs")
+    print("  1. Run all MoE-PolicyLang policies × workloads × hardware configs")
     print("  2. Run all baselines (vLLM, MoE-Infinity) on same workloads")
     print("  3. Generate comparison tables and figures")
     print("  4. Export results to JSON for paper figures")
