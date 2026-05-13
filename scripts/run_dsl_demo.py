@@ -21,8 +21,10 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 import moe_sched
 
 ALIASES = {"olmoe": "allenai/OLMoE-1B-7B-0924",
-           "mixtral": "mistralai/Mixtral-8x7B-Instruct-v0.1"}
-QUANTIZE = {"mistralai/Mixtral-8x7B-Instruct-v0.1"}
+           "mixtral": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+           "qwen-moe": "Qwen/Qwen1.5-MoE-A2.7B"}
+QUANTIZE = {"mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "Qwen/Qwen1.5-MoE-A2.7B"}
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--model", default="olmoe")

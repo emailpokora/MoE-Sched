@@ -11,14 +11,16 @@ build/
 *.c
 !moe_sched/runtime/_fast/*.pyx
 
-# Traces (large files)
+# Traces (large, regenerable)
 traces/*.jsonl
+traces/*.json
 
 # Results (regenerable)
 results/*.json
 results/*.png
+results.md
 
-# LaTeX
+# LaTeX build artifacts
 paper/*.aux
 paper/*.bbl
 paper/*.blg
@@ -26,6 +28,8 @@ paper/*.log
 paper/*.out
 paper/*.pdf
 paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
 
 # IDE
 .vscode/
@@ -38,9 +42,10 @@ paper/*.synctex.gz
 # Packaged archive (regenerable)
 moe_sched.zip
 
-# Offload temp directory
+# Temp / debug
 offload_tmp/
+offload_err.log
+*.log
 
-# OpenMemory - IDE/Assistant specific rules
-.windsurf\rules\openmemory.md
+# OpenMemory
 openmemory.md
