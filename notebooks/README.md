@@ -31,3 +31,64 @@ My Drive/moe-sched-paper/
 ├── results/            # Experiment outputs (JSON, PDF)
 └── checkpoints/        # Model cache
 ```
+
+## Reproducing on Local Hardware
+
+The live inference experiment (`scripts/run_constrained_e2e.py`) runs
+OLMoE-1B-7B with MoE-Sched hooks on a consumer GPU — no Colab required.
+
+### Requirements
+
+- **GPU**: NVIDIA GPU with ≥ 16 GB VRAM (tested on RTX 5080 Laptop)
+- **RAM**: ≥ 16 GB system memory
+- **Disk**: ~14 GB for model weights (downloaded automatically)
+- **Python**: 3.10+
+- **CUDA**: 11.8+ with compatible PyTorch
+
+### Steps
+
+1. **Install dependencies**
+
+   ```bash
+   pip install -e ".[gpu,eval]"
+   ```
+
+2. **(Optional) Redirect model cache to a larger drive**
+
+   ```bash
+   # Windows
+   set HF_HOME=D:\hf_cache
+
+   # Linux / macOS
+   export HF_HOME=/path/to/large/drive/hf_cache
+   ```
+
+3. **Run the experiment**
+
+   ```bash
+   python scripts/run_constrained_e2e.py
+   ```
+
+   On first run, OLMoE-1B-7B weights (~14 GB) are downloaded from
+   HuggingFace. Subsequent runs use the local cache.
+
+4. **View results**
+
+   - `traces/constrained_e2e_results.json` — raw metrics (tok/s, cache
+     hits/misses, hit rate, dispatch latency per policy)
+   - `paper/figures/constrained_throughput.pdf` — bar chart comparing
+     throughput and hit rate across policies
+
+### Expected Output
+
+```
+Policy           tok/s   Hit Rate  Peak GB
+vanilla           39.2        N/A     14.0
+naive_c4          34.6       2.4%     14.0
+lru_c16           34.7      26.3%     14.0
+lfu_hist_c16      33.8      27.1%     14.0
+epcb_c16          33.6      47.3%     14.0
+```
+
+Numbers will vary by hardware. The key result is EPCB's ~1.8× hit-rate
+improvement over LRU at equal cache capacity (16 experts).

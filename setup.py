@@ -12,17 +12,15 @@ Status: STUB — activate after Phase 2 .pyx files are implemented.
 
 from setuptools import setup, find_packages
 
-# Uncomment when Cython implementations are ready:
-# from Cython.Build import cythonize
-#
-# ext_modules = cythonize([
-#     "moe_sched/runtime/_fast/_cache.pyx",
-#     "moe_sched/runtime/_fast/_scheduler.pyx",
-# ], compiler_directives={
-#     "boundscheck": False,
-#     "wraparound": False,
-#     "language_level": "3",
-# })
+from Cython.Build import cythonize
+
+ext_modules = cythonize([
+    "moe_sched/runtime/_fast/_cache.pyx",
+], compiler_directives={
+    "boundscheck": False,
+    "wraparound": False,
+    "language_level": "3",
+})
 
 setup(
     name="moe-sched",
@@ -31,7 +29,7 @@ setup(
     description="A domain-specific language for Mixture-of-Experts scheduling policies",
     license="MIT",
     packages=find_packages(),
-    # ext_modules=ext_modules,  # Uncomment for Phase 2
+    ext_modules=ext_modules,
     python_requires=">=3.10",
     install_requires=[
         "lark>=1.1,<2",

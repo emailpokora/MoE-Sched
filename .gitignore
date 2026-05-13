@@ -38,6 +38,9 @@ paper/*.synctex.gz
 # Packaged archive (regenerable)
 moe_sched.zip
 
+# Offload temp directory
+offload_tmp/
+
 # OpenMemory - IDE/Assistant specific rules
 .windsurf\rules\openmemory.md
 openmemory.md
