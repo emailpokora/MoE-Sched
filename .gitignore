@@ -43,10 +43,17 @@ presentation.md
 # Packaged archive (regenerable)
 moe_policylang.zip
 
+# Paper & figures (moved to MoE-PolicyLang-Paper/)
+paper/
+figures/
+
 # Temp / debug
 offload_tmp/
 offload_err.log
 *.log
+_*.py
+_*.txt
 
 # OpenMemory
 openmemory.md
+.windsurf\rules\openmemory.md

@@ -210,7 +210,6 @@ memory-efficient — it does not create a multi-model serving fabric.
 ### Installation
 
 ```bash
-cd conference-paper
 pip install -e ".[dev]"
 ```
 
@@ -1046,7 +1045,7 @@ print(f"{len(trace_data)} entries across {header['num_layers']} layers")
 
 ### Recording Traces (Colab)
 
-See `notebooks/01_trace_recording.ipynb` for recording traces from real
+See `notebooks/trace_recording.ipynb` for recording traces from real
 models on GPU. The notebook hooks into HuggingFace Transformers' MoE gate
 layers to capture router decisions.
 
@@ -1170,7 +1169,7 @@ policy deepseek_optimized {
 
 ### 11.1 Reproducing Published Systems
 
-MoE-PolicyLang can express the expert management strategies of all nine surveyed
+MoE-PolicyLang can express the expert management strategies of six published
 MoE serving systems:
 
 **ExpertFlow** (score-based + lookahead prefetch):

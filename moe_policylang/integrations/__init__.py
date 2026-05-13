@@ -6,6 +6,7 @@ from moe_policylang.integrations.weight_placement import (
     WeightPlacementManager,
 )
 from moe_policylang.integrations.accessors import auto_accessor
+from moe_policylang.integrations.loading import load_moe_model
 
 
 def auto_manage(model, hook, gpu_device=0):
@@ -74,4 +75,5 @@ __all__ = [
     "auto_accessor",
     "auto_manage",
     "attach",
+    "load_moe_model",
 ]

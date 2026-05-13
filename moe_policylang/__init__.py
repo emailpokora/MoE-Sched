@@ -19,7 +19,7 @@ from moe_policylang.compiler import compile_policy
 from moe_policylang.errors import DSLError, ValidationError
 from moe_policylang.parser import parse_policies, parse_policy, parse_file
 from moe_policylang.runtime.hooks import PolicyHook, DispatchPlan, ExpertDispatch, build_hook
-from moe_policylang.integrations import attach
+from moe_policylang.integrations import attach, load_moe_model
 from moe_policylang.auto import auto_policies, auto_attach
 
 __all__ = [
@@ -51,4 +51,5 @@ __all__ = [
     "attach",
     "auto_policies",
     "auto_attach",
+    "load_moe_model",
 ]

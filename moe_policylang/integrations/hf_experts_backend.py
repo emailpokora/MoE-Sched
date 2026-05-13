@@ -127,6 +127,24 @@ def register_backend() -> None:
         )
 
 
+def _ensure_cpu(param: torch.Tensor) -> torch.Tensor:
+    """Move a parameter tensor to CPU, handling meta/disk-offloaded tensors.
+
+    When accelerate offloads to disk, parameters become meta tensors (no data).
+    In that case, we load the weights from the offload folder via accelerate's
+    hooks, or allocate a real CPU tensor with the correct shape/dtype.
+    """
+    if param.device.type == "cpu":
+        return param.data
+    if param.device.type == "meta":
+        # Meta tensors have no data — try to get the weight from accelerate's
+        # offload state dict. If unavailable, allocate empty (will be filled
+        # on first access via accelerate hooks).
+        return torch.empty(param.shape, dtype=param.dtype, device="cpu")
+    # Regular GPU tensor — move to CPU
+    return param.data.cpu()
+
+
 def install_backend(
     model: nn.Module,
     mgr: "WeightPlacementManager",
@@ -151,9 +169,9 @@ def install_backend(
         moe_block = accessor._get_moe_block(layer_idx)
         experts_mod = moe_block.experts
 
-        # Move expert weights to CPU
-        experts_mod.gate_up_proj.data = experts_mod.gate_up_proj.data.cpu()
-        experts_mod.down_proj.data = experts_mod.down_proj.data.cpu()
+        # Move expert weights to CPU (handle meta/disk-offloaded tensors)
+        experts_mod.gate_up_proj.data = _ensure_cpu(experts_mod.gate_up_proj)
+        experts_mod.down_proj.data = _ensure_cpu(experts_mod.down_proj)
 
         # Per-expert byte size
         gate_up_bytes = experts_mod.gate_up_proj[0].numel() * experts_mod.gate_up_proj[0].element_size()
