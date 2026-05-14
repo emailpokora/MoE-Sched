@@ -24,14 +24,15 @@ inference.
    - [Eviction Triggers](#45-eviction-triggers)
 5. [Adaptive Policies](#5-adaptive-policies)
 6. [Per-Layer Adaptive Caching](#6-per-layer-adaptive-caching)
-7. [Compilation and Runtime](#7-compilation-and-runtime)
-8. [Autotuner](#8-autotuner)
-9. [Validation Rules](#9-validation-rules)
-10. [Working with Traces](#10-working-with-traces)
-11. [Examples](#11-examples)
-    - [Reproducing Published Systems](#111-reproducing-published-systems)
-12. [API Reference](#12-api-reference)
-13. [Command-Line Interface](#13-command-line-interface)
+7. [HuggingFace Integration](#7-huggingface-integration)
+8. [Compilation and Runtime](#8-compilation-and-runtime)
+9. [Autotuner](#9-autotuner)
+10. [Validation Rules](#10-validation-rules)
+11. [Working with Traces](#11-working-with-traces)
+12. [Examples](#12-examples)
+    - [Reproducing Published Systems](#121-reproducing-published-systems)
+13. [API Reference](#13-api-reference)
+14. [Command-Line Interface](#14-command-line-interface)
 
 ---
 
@@ -210,7 +211,15 @@ memory-efficient — it does not create a multi-model serving fabric.
 ### Installation
 
 ```bash
-pip install -e ".[dev]"
+pip install moe-policylang           # DSL only (no GPU deps)
+pip install moe-policylang[gpu]       # + torch, transformers, accelerate
+```
+
+From source (development):
+```bash
+git clone https://github.com/jesse-pokora/MoE-PolicyLang.git
+cd MoE-PolicyLang
+pip install -e ".[dev,gpu]"
 ```
 
 ### Minimal .moe Policy
@@ -790,7 +799,117 @@ print(stats["per_layer"])   # per-layer hit rates
 
 ---
 
-## 7. Compilation and Runtime
+## 7. HuggingFace Integration
+
+MoE-PolicyLang integrates directly with HuggingFace Transformers models.
+The system auto-detects MoE architecture from any HuggingFace model — no
+model-specific code required.
+
+### The `attach()` API
+
+The simplest way to use MoE-PolicyLang with a real model:
+
+```python
+import moe_policylang
+from transformers import AutoModelForCausalLM
+
+model = AutoModelForCausalLM.from_pretrained("allenai/OLMoE-1B-7B-0924")
+
+mgr = moe_policylang.attach(model, """
+    policy my_policy {
+        cache { capacity = 16  eviction = lfu  frequency_decay = 0.9 }
+        prefetch { strategy = history  budget = 4 }
+    }
+""")
+
+output = model.generate(...)
+print(mgr.get_stats())
+```
+
+`attach()` accepts:
+- A **DSL string** — parsed and compiled automatically
+- A **PolicyIR object** — compiled automatically
+
+It auto-detects the model's MoE structure, compiles the policy, installs
+hooks into the model's forward pass, and returns a `WeightPlacementManager`.
+
+### The `auto_attach()` API
+
+Generate a hardware-tuned policy automatically:
+
+```python
+import moe_policylang
+
+mgr = moe_policylang.auto_attach(model)                 # default: "balanced"
+mgr = moe_policylang.auto_attach(model, "conservative") # more cache
+mgr = moe_policylang.auto_attach(model, "aggressive")   # minimal cache
+mgr = moe_policylang.auto_attach(model, "hw_limit")     # fill available VRAM
+```
+
+`auto_attach()` inspects the model's expert count, top-k, expert size, and
+available GPU memory to compute cache capacities that make physical sense.
+
+| Strategy | Cache Size | Eviction | Prefetch |
+|----------|-----------|----------|----------|
+| `aggressive` | Small (num_experts / 8) | LRU | None |
+| `balanced` | Medium (num_experts / 4) | LFU | History |
+| `conservative` | Large (num_experts / 2) | LFU | History |
+| `hw_limit` | Max that fits in VRAM | LFU | History |
+
+### Expert-Aware Model Loading
+
+For models that exceed GPU memory, `load_moe_model()` builds a device map
+that places the model skeleton (embeddings, attention, norms) on GPU and
+expert weights on CPU:
+
+```python
+from moe_policylang.integrations.loading import load_moe_model
+import moe_policylang
+
+model, tokenizer = load_moe_model("mistralai/Mixtral-8x7B-Instruct-v0.1")
+mgr = moe_policylang.attach(model, policy_dsl)
+output = model.generate(...)
+```
+
+Expert detection is heuristic — it recognizes patterns like
+`block_sparse_moe.experts` (Mixtral), `mlp.experts` (OLMoE, Qwen),
+and `moe.experts` (generic).
+
+### WeightPlacementManager
+
+The object returned by `attach()` / `auto_attach()`:
+
+```python
+mgr.get_stats()   # combined policy + placement statistics
+# Returns:
+# {
+#     "policy": { ... hook stats ... },
+#     "placement": {
+#         "cpu_to_gpu_transfers": 420,
+#         "gpu_to_cpu_transfers": 380,
+#         "bytes_transferred_mb": 504.0,
+#         "transfer_time_s": 2.1,
+#         "avg_transfer_us": 2500.0,
+#         "forward_calls": 1024,
+#     }
+# }
+```
+
+### Tested Models
+
+MoE-PolicyLang auto-detects MoE structure from any HuggingFace model.
+We have evaluated on:
+
+| Model | Experts × Layers | Routing | Hardware |
+|-------|-----------------|---------|----------|
+| Mixtral-8×7B-Instruct | 8 × 32 | top-2 | A100-80 GB |
+| DeepSeek-V2-Lite | 64 × 27 | top-6 | A100-80 GB |
+| Qwen1.5-MoE-A2.7B | 60 × 24 | top-4 | RTX 5080 (16 GB) |
+| OLMoE-1B-7B | 64 × 16 | top-8 | RTX 5080 (16 GB) |
+
+---
+
+## 8. Compilation and Runtime
 
 ### Pipeline
 
@@ -879,7 +998,7 @@ available implementation.
 
 ---
 
-## 8. Autotuner
+## 9. Autotuner
 
 The autotuner performs grid search over the DSL parameter space to find
 optimal configurations for a given workload trace.
@@ -951,7 +1070,7 @@ result.dispatch_mean_us # float: mean dispatch latency (if measured)
 
 ---
 
-## 9. Validation Rules
+## 10. Validation Rules
 
 Every policy (parsed or programmatically built) is validated before
 compilation. There are **17 semantic rules** that catch configuration errors
@@ -1009,7 +1128,7 @@ except Exception as e:
 
 ---
 
-## 10. Working with Traces
+## 11. Working with Traces
 
 MoE-PolicyLang uses expert activation traces in JSONL format for offline
 evaluation and autotuning.
@@ -1073,7 +1192,7 @@ print(f"Hit rate: {stats['cache']['hit_rate']:.1%}")
 
 ---
 
-## 11. Examples
+## 12. Examples
 
 ### Minimal LRU
 
@@ -1167,7 +1286,7 @@ policy deepseek_optimized {
 }
 ```
 
-### 11.1 Reproducing Published Systems
+### 12.1 Reproducing Published Systems
 
 MoE-PolicyLang can express the expert management strategies of six published
 MoE serving systems:
@@ -1236,7 +1355,16 @@ policy promoe {
 
 ---
 
-## 12. API Reference
+## 13. API Reference
+
+### Integration Functions (Recommended)
+
+| Function | Description |
+|----------|-------------|
+| `moe_policylang.attach(model, policy)` | Attach a policy (DSL string or PolicyIR) to a HuggingFace model |
+| `moe_policylang.auto_attach(model, strategy)` | Auto-generate and attach a hardware-tuned policy |
+| `moe_policylang.auto_policies(model)` | Generate a dict of strategy → DSL string |
+| `load_moe_model(model_id)` | Load a HuggingFace MoE model with expert-aware device map |
 
 ### Core Functions
 
@@ -1268,6 +1396,8 @@ policy promoe {
 | `PerLayerHook` | Per-layer entropy-adaptive dispatch |
 | `PerLayerConfig` | Configuration for per-layer caching |
 | `RoutingEntropyTracker` | Computes per-layer Shannon entropy |
+| `WeightPlacementManager` | Manages expert CPU↔GPU transfers during inference |
+| `GenericMoEAccessor` | Auto-detected model accessor (from `auto_accessor()`) |
 
 ### Enums
 
@@ -1301,7 +1431,7 @@ from moe_policylang import DSLError, ValidationError
 
 ---
 
-## 13. Command-Line Interface
+## 14. Command-Line Interface
 
 MoE-PolicyLang provides a CLI for validating and inspecting `.moe` files.
 

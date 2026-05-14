@@ -262,11 +262,11 @@ runtime API, and policy authoring guide.
 ## Citation
 
 ```bibtex
-@inproceedings{pokora2026moepolicylang,
+@misc{pokora2026moepolicylang,
   title={MoE-PolicyLang: A Domain-Specific Language for Mixture-of-Experts Scheduling Policies},
   author={Pokora, Jesse},
-  booktitle={IEEE COMPSAC},
-  year={2026}
+  year={2026},
+  url={https://github.com/jesse-pokora/MoE-PolicyLang}
 }
 ```
 
