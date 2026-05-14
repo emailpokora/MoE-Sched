@@ -15,7 +15,7 @@ But managing that offloading is complex. *Which* experts to keep on GPU? *When* 
 **Every existing system hardcodes these decisions** in hundreds of lines of C++/CUDA. MoE-PolicyLang replaces all of that with a small, declarative language.
 
 <p align="center">
-  <img src="docs/images/constrained_throughput.png" width="600" alt="Throughput and hit rate comparison across policies on consumer GPU">
+  <img src="https://raw.githubusercontent.com/jesse-pokora/MoE-PolicyLang/master/docs/images/constrained_throughput.png" width="600" alt="Throughput and hit rate comparison across policies on consumer GPU">
 </p>
 
 ---
@@ -101,7 +101,7 @@ Python dicts could configure this. The DSL adds three things they can't:
 ### The abstraction is effectively free
 
 <p align="center">
-  <img src="docs/images/latency_with_ci.png" width="600" alt="Dispatch overhead with 95% confidence intervals">
+  <img src="https://raw.githubusercontent.com/jesse-pokora/MoE-PolicyLang/master/docs/images/latency_with_ci.png" width="600" alt="Dispatch overhead with 95% confidence intervals">
 </p>
 
 All policies add **< 3.2% overhead** on A100 (6–47 µs/layer vs. 1,459 µs for MoE forward pass).
@@ -119,7 +119,7 @@ All policies add **< 3.2% overhead** on A100 (6–47 µs/layer vs. 1,459 µs for
 ### Policy selection produces measurable differences
 
 <p align="center">
-  <img src="docs/images/capacity_sweep.png" width="600" alt="Cache hit rate vs capacity for Mixtral and DeepSeek">
+  <img src="https://raw.githubusercontent.com/jesse-pokora/MoE-PolicyLang/master/docs/images/capacity_sweep.png" width="600" alt="Cache hit rate vs capacity for Mixtral and DeepSeek">
 </p>
 
 Different policies → different real performance. Mixtral saturates quickly (8 experts); DeepSeek (64 experts) needs smarter strategies.
@@ -129,7 +129,7 @@ Different policies → different real performance. Mixtral saturates quickly (8 
 Not all layers are equal — some concentrate on a few experts, others spread across many. **Entropy-Proportional Cache Budgeting** allocates more cache to high-entropy layers:
 
 <p align="center">
-  <img src="docs/images/deepseek_entropy_allocation.png" width="600" alt="Per-layer entropy and capacity allocation">
+  <img src="https://raw.githubusercontent.com/jesse-pokora/MoE-PolicyLang/master/docs/images/deepseek_entropy_allocation.png" width="600" alt="Per-layer entropy and capacity allocation">
 </p>
 
 | Strategy | Hit Rate |
@@ -144,7 +144,7 @@ Not all layers are equal — some concentrate on a few experts, others spread ac
 OLMoE-1B-7B on RTX 5080 Laptop (16 GB VRAM):
 
 <p align="center">
-  <img src="docs/images/hitrate_with_ci.png" width="600" alt="Hit rate with bootstrap confidence intervals">
+  <img src="https://raw.githubusercontent.com/jesse-pokora/MoE-PolicyLang/master/docs/images/hitrate_with_ci.png" width="600" alt="Hit rate with bootstrap confidence intervals">
 </p>
 
 | Policy | Cap | Hit Rate | tok/s |
@@ -159,29 +159,37 @@ OLMoE-1B-7B on RTX 5080 Laptop (16 GB VRAM):
 
 ## Installation
 
+From PyPI:
 ```bash
-pip install -e ".[gpu]"
+pip install moe-policylang           # DSL only (no GPU deps)
+pip install moe-policylang[gpu]       # + torch, transformers, accelerate
+pip install moe-policylang[all]       # everything
 ```
 
-Minimal (DSL only, no GPU):
+From source (development):
 ```bash
-pip install -e .
+git clone https://github.com/jesse-pokora/MoE-PolicyLang.git
+cd MoE-PolicyLang
+pip install -e ".[dev,gpu]"
 ```
 
-Optional Cython fast path (< 10 µs/layer):
+Cython fast path (< 10 µs/layer):
 ```bash
-pip install -e ".[cython]"
+pip install moe-policylang[cython]
 python setup_cython.py build_ext --inplace
 ```
 
 ---
 
-## Supported Models
+## Tested Models
 
-| Model | Experts × Layers | Routing | Tested on |
-|-------|-----------------|---------|-----------|
+MoE-PolicyLang auto-detects MoE structure from any HuggingFace model — no model-specific code required. We have evaluated on:
+
+| Model | Experts × Layers | Routing | Hardware |
+|-------|-----------------|---------|----------|
 | Mixtral-8×7B-Instruct | 8 × 32 | top-2 | A100-80 GB |
 | DeepSeek-V2-Lite | 64 × 27 | top-6 | A100-80 GB |
+| Qwen1.5-MoE-A2.7B | 60 × 24 | top-4 | RTX 5080 (16 GB) |
 | OLMoE-1B-7B | 64 × 16 | top-8 | RTX 5080 (16 GB) |
 
 ---
@@ -254,9 +262,10 @@ runtime API, and policy authoring guide.
 ## Citation
 
 ```bibtex
-@article{pokora2026moepolicylang,
+@inproceedings{pokora2026moepolicylang,
   title={MoE-PolicyLang: A Domain-Specific Language for Mixture-of-Experts Scheduling Policies},
   author={Pokora, Jesse},
+  booktitle={IEEE COMPSAC},
   year={2026}
 }
 ```

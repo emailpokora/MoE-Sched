@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "moe-policylang"
-version = "1.0.0"
+version = "1.0.2"
 description = "A domain-specific language for Mixture-of-Experts scheduling policies"
 authors = [{name = "Jesse Pokora"}]
 license = {text = "MIT"}

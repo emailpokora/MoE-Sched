@@ -46,6 +46,7 @@ moe_policylang.zip
 # Paper & figures (moved to MoE-PolicyLang-Paper/)
 paper/
 figures/
+MoE-PolicyLang-Paper/
 
 # Temp / debug
 offload_tmp/

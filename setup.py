@@ -24,7 +24,7 @@ except ImportError:
 
 setup(
     name="moe-policylang",
-    version="1.0.0",
+    version="1.0.2",
     author="Jesse Pokora",
     description="A domain-specific language for Mixture-of-Experts scheduling policies",
     license="MIT",
