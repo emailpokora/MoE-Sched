@@ -9,7 +9,7 @@ from moe_policylang.integrations.accessors import auto_accessor
 from moe_policylang.integrations.loading import load_moe_model
 
 
-def auto_manage(model, hook, gpu_device=0):
+def auto_manage(model, hook, gpu_device=0, async_transfers=False):
     """One-line setup: auto-detect architecture and create a managed offloader.
 
     Usage:
@@ -18,10 +18,10 @@ def auto_manage(model, hook, gpu_device=0):
         output = model.generate(...)  # use model normally
     """
     accessor = auto_accessor(model)
-    return WeightPlacementManager(hook, accessor, gpu_device=gpu_device)
+    return WeightPlacementManager(hook, accessor, gpu_device=gpu_device, async_transfers=async_transfers)
 
 
-def attach(model, policy, gpu_device=0):
+def attach(model, policy, gpu_device=0, async_transfers=False):
     """Attach a MoE-PolicyLang policy to a HuggingFace MoE model.
 
     This is the primary user-facing API. After calling this, use the model
@@ -62,7 +62,7 @@ def attach(model, policy, gpu_device=0):
     compiled = compile_policy(policy)
     hook = build_hook(compiled)
     accessor = auto_accessor(model)
-    mgr = WeightPlacementManager(hook, accessor, gpu_device=gpu_device)
+    mgr = WeightPlacementManager(hook, accessor, gpu_device=gpu_device, async_transfers=async_transfers)
     mgr.attach()
     return mgr
 

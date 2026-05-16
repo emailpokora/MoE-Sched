@@ -103,13 +103,14 @@ def auto_policies(model: "nn.Module", gpu_device: int = 0) -> dict[str, str]:
     return policies
 
 
-def auto_attach(model: "nn.Module", strategy: str = "balanced", gpu_device: int = 0):
+def auto_attach(model: "nn.Module", strategy: str = "balanced", gpu_device: int = 0, async_transfers: bool = False):
     """Generate a policy for this model and attach it in one call.
 
     Args:
         model: HuggingFace MoE model.
         strategy: One of 'aggressive', 'balanced', 'conservative', 'hw_limit'.
         gpu_device: GPU index.
+        async_transfers: Use CUDA stream-based async CPU→GPU copies.
 
     Returns:
         WeightPlacementManager with the auto-generated policy attached.
@@ -121,4 +122,4 @@ def auto_attach(model: "nn.Module", strategy: str = "balanced", gpu_device: int 
         valid = ", ".join(sorted(policies.keys()))
         raise ValueError(f"Unknown strategy '{strategy}'. Choose from: {valid}")
 
-    return attach(model, policies[strategy], gpu_device=gpu_device)
+    return attach(model, policies[strategy], gpu_device=gpu_device, async_transfers=async_transfers)

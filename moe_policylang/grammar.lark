@@ -1,4 +1,4 @@
-// MoE-PolicyLang policy grammar v0.6
+// MoE-PolicyLang policy grammar v0.7
 // Parsed by Lark (LALR) — produces a tree that the IR builder transforms into PolicyIR.
 
 start: version_decl? policy+
@@ -12,6 +12,7 @@ block: cache_block
      | schedule_block
      | monitor_block
      | adapt_block
+     | per_layer_block
 
 // ── cache ──────────────────────────────────────────────────────────
 cache_block: "cache" "{" cache_param+ "}"
@@ -69,6 +70,17 @@ adapt_action: NAME "=" ENUM_VAL     -> adapt_set_param
             | NAME "=" NUMBER       -> adapt_set_number
             | NAME "=" INT          -> adapt_set_int
             | "trigger" ENUM_VAL    -> adapt_trigger
+            | "rebalance" ENUM_VAL  -> adapt_rebalance
+
+// ── per_layer ─────────────────────────────────────────────────────────
+per_layer_block: "per_layer" "{" per_layer_param+ "}"
+
+per_layer_param: "allocation"           "=" ENUM_VAL  -> per_layer_allocation
+               | "entropy_window"       "=" INT       -> per_layer_entropy_window
+               | "min_capacity"         "=" INT       -> per_layer_min_cap
+               | "max_capacity"         "=" INT       -> per_layer_max_cap
+               | "rebalance_interval"   "=" INT       -> per_layer_rebalance_interval
+               | "total_budget"         "=" INT       -> per_layer_total_budget
 
 COMP_OP: "<" | ">" | "<=" | ">=" | "!="
 

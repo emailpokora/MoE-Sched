@@ -64,9 +64,25 @@ def _moe_policylang_experts_forward(
     # -- 2. Determine unique experts needed and load to GPU --
     needed_experts = top_k_index.unique().cpu().tolist()
     gpu_cache = ctx["gpu_cache"]  # {expert_id: {"gate_up": Tensor, "down": Tensor}}
+    atm = mgr._atm  # AsyncTransferManager or None
 
     for eid in needed_experts:
         if eid not in gpu_cache:
+            # Check async transfer manager first
+            if atm is not None:
+                gpu_tensors = atm.ensure_ready(layer_idx, eid)
+                if gpu_tensors is not None:
+                    # Expert was async-prefetched — use the transferred tensors
+                    gpu_cache[eid] = {
+                        "gate_up": gpu_tensors.get("gate_up", gpu_tensors.get("param_0")),
+                        "down": gpu_tensors.get("down", gpu_tensors.get("param_1")),
+                    }
+                    mgr.stats.cpu_to_gpu_transfers += 1
+                    mgr.stats.bytes_transferred += expert_bytes
+                    mgr._on_gpu.add((layer_idx, eid))
+                    continue
+
+            # Synchronous fallback
             t0 = time.perf_counter()
             gpu_cache[eid] = {
                 "gate_up": self.gate_up_proj[eid].to(gpu_device, non_blocking=True),
@@ -78,6 +94,10 @@ def _moe_policylang_experts_forward(
             mgr.stats.bytes_transferred += expert_bytes
             mgr.stats.transfer_time_s += elapsed
             mgr._on_gpu.add((layer_idx, eid))
+
+            # Register with ATM so it knows about this sync transfer
+            if atm is not None:
+                atm.mark_ready(layer_idx, eid, gpu_cache[eid])
 
     # -- 3. Compute (same as HF eager loop) --
     final_hidden_states = torch.zeros_like(hidden_states)
@@ -102,6 +122,26 @@ def _moe_policylang_experts_forward(
         final_hidden_states.index_add_(
             0, token_idx, current_hidden_states.to(final_hidden_states.dtype)
         )
+
+    # -- 4. Async prefetch: start transferring predicted experts for next layer --
+    if atm is not None and hasattr(mgr.hook, 'prefetcher'):
+        # The prefetcher already computed predictions during on_layer();
+        # now start async transfers for the next layer's predicted experts.
+        next_layer = layer_idx + 1
+        if next_layer < getattr(mgr.accessor, 'num_layers', float('inf')):
+            predicted = mgr.hook.prefetcher.predict(
+                layer_idx, list(needed_experts)
+            )
+            for pred_eid in predicted:
+                pred_key = (next_layer, pred_eid)
+                if pred_key not in mgr._on_gpu and pred_eid not in gpu_cache:
+                    # Start async transfer of this expert's weights
+                    cpu_tensors = {
+                        "gate_up": self.gate_up_proj[pred_eid],
+                        "down": self.down_proj[pred_eid],
+                    }
+                    size_bytes = expert_bytes
+                    atm.start_transfer(next_layer, pred_eid, cpu_tensors, size_bytes)
 
     mgr.stats.forward_calls += 1
     return final_hidden_states
@@ -203,6 +243,9 @@ def install_backend(
                 evicted_any = True
         if evicted_any:
             mgr.stats.gpu_to_cpu_transfers += 1
+        # Also evict from async transfer manager
+        if mgr._atm is not None:
+            mgr._atm.evict_expert_all_layers(expert_id)
 
     cache = mgr.hook.cache
     if hasattr(cache, 'on_evict'):

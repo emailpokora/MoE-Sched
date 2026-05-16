@@ -33,6 +33,7 @@ inference.
     - [Reproducing Published Systems](#121-reproducing-published-systems)
 13. [API Reference](#13-api-reference)
 14. [Command-Line Interface](#14-command-line-interface)
+15. [Benchmark & Evaluation Scripts](#15-benchmark--evaluation-scripts)
 
 ---
 
@@ -281,19 +282,20 @@ the same intermediate representation (PolicyIR) and are fully interchangeable.
 
 ### 3.1 .moe File Syntax
 
-Standalone text files parsed by a Lark LALR grammar (v0.6).
+Standalone text files parsed by a Lark LALR grammar (v0.7).
 
 **Structure:**
 ```
-version 0.6   # optional — parser rejects files requiring a newer version
+version 0.7   # optional — parser rejects files requiring a newer version
 
 # Comments start with # (full-line or inline)
 policy <name> {
-    cache    { <params> }
-    prefetch { <params> }    # optional
-    schedule { <params> }    # optional
-    monitor  { <params> }    # optional
-    adapt    { <rules> }     # optional
+    cache     { <params> }
+    prefetch  { <params> }    # optional
+    schedule  { <params> }    # optional
+    monitor   { <params> }    # optional
+    per_layer { <params> }    # optional — EPCB per-layer allocation
+    adapt     { <rules> }     # optional
 }
 ```
 
@@ -364,6 +366,22 @@ ir = sched.policies['my_policy']
 - `p.cache(...)` is mandatory; all others are optional
 - String values are accepted for enum parameters (e.g., `'lru'` instead of `EvictionPolicy.LRU`)
 
+**Per-layer EPCB** can be enabled with `p.per_layer(...)`:
+
+```python
+@sched.policy
+def epcb_policy(p):
+    p.cache(capacity=16, eviction='lfu', lfu_decay=0.9)
+    p.per_layer(
+        allocation='entropy',
+        entropy_window=200,
+        min_capacity=4,
+        max_capacity=48,
+        rebalance_interval=500,
+        total_budget=432,
+    )
+```
+
 ### 3.3 Fluent Builder
 
 Method-chaining alternative for inline policy construction:
@@ -375,6 +393,7 @@ ir = (sched.build("my_policy")
     .cache(capacity=16, eviction='lfu', lfu_decay=0.9)
     .prefetch(strategy='history', budget=4)
     .schedule(mode='hybrid')
+    .per_layer(allocation='entropy', total_budget=432)  # optional
     .done())
 
 sched.register(ir)
@@ -725,6 +744,7 @@ raise a `DSLError` immediately rather than silently failing at runtime.
 | Change prefetch budget | `prefetch_budget = 8` | Adjust prefetch aggressiveness |
 | Change schedule mode | `schedule_mode = hybrid` | Switch execution strategy |
 | Fire trigger | `trigger memory_pressure` | Force pressure eviction |
+| Rebalance per-layer | `rebalance entropy` | Trigger EPCB rebalance (requires `per_layer` block) |
 
 ### Adaptation Semantics
 
@@ -742,7 +762,57 @@ For models with many experts (e.g., DeepSeek with 64), different layers may
 have different routing characteristics. Per-layer adaptive caching maintains
 **separate caches per layer** with capacity allocated based on routing entropy.
 
-### Usage
+### .moe Syntax
+
+```
+policy epcb_deepseek {
+    cache { capacity = 16  eviction = lfu  frequency_decay = 0.9 }
+
+    per_layer {
+        allocation = entropy
+        entropy_window = 200
+        min_capacity = 4
+        max_capacity = 48
+        rebalance_interval = 500
+        total_budget = 432
+    }
+}
+```
+
+When a `per_layer` block is present, `build_hook()` creates a `PerLayerHook`
+instead of a standard `PolicyHook`.  The `num_layers` and `num_experts`
+arguments are required:
+
+```python
+from moe_policylang import parse_policy, compile_policy, build_hook
+
+ir = parse_policy(open("epcb_deepseek.moe").read())
+compiled = compile_policy(ir)
+hook = build_hook(compiled, num_layers=27, num_experts=64)
+```
+
+**Combining with `adapt`:** The `per_layer` block can be paired with an
+`adapt` block using the `rebalance` action to trigger rebalancing based on
+runtime conditions instead of (or in addition to) the fixed interval:
+
+```
+policy epcb_adaptive {
+    cache { capacity = 16  eviction = lfu  frequency_decay = 0.9 }
+
+    per_layer {
+        allocation = entropy
+        entropy_window = 200
+        min_capacity = 4
+        max_capacity = 48
+    }
+
+    adapt {
+        when hit_rate < 0.4 for 100 accesses { rebalance entropy }
+    }
+}
+```
+
+### Python API (Direct)
 
 ```python
 from moe_policylang.ir import PolicyIR, CacheIR, EvictionPolicy
@@ -778,10 +848,11 @@ plan = hook.on_layer(layer_idx=5, selected_experts=[3, 12, 45, 7, 22, 1])
 3. **Periodic rebalancing**: Every `rebalance_interval` steps, capacities are
    recalculated and caches are rebuilt for layers whose allocation changed
 
-### PerLayerConfig Parameters
+### `per_layer` Block Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
+| `allocation` | enum | `entropy` | Allocation signal: `entropy` (Shannon) or `uniform` |
 | `entropy_window` | int | `200` | Sliding window for entropy computation |
 | `min_capacity` | int | `2` | Minimum cache slots per layer |
 | `max_capacity` | int | `64` | Maximum cache slots per layer |
@@ -891,9 +962,52 @@ mgr.get_stats()   # combined policy + placement statistics
 #         "transfer_time_s": 2.1,
 #         "avg_transfer_us": 2500.0,
 #         "forward_calls": 1024,
+#     },
+#     "async": {  # only when async_transfers=True
+#         "async_transfers": 280,
+#         "sync_transfers": 140,
+#         "prefetch_hits": 220,
+#         "sync_waits": 15,
+#         "overlap_ratio": 0.524,
+#         "transfer_time_s": 0.8,
+#         "bytes_transferred_mb": 336.0,
 #     }
 # }
 ```
+
+### Async Transfers
+
+By default, expert weight copies are synchronous: each `CPU→GPU` transfer
+blocks until complete.  Enable async transfers to overlap copies with
+computation using a dedicated CUDA stream:
+
+```python
+mgr = moe_policylang.attach(model, policy_dsl, async_transfers=True)
+```
+
+**How it works:**
+
+1. During layer L's expert forward passes (on the default CUDA stream),
+   the prefetcher predicts which experts layer L+1 will need
+2. Those experts' weights are copied `CPU→GPU` on a dedicated transfer
+   stream — concurrently with layer L's compute
+3. When layer L+1 runs, it checks whether each needed expert was already
+   prefetched; if so, it uses the GPU copy directly (no sync wait)
+4. If an expert wasn't prefetched, it falls back to a synchronous copy
+
+**Key metrics** (from `mgr.get_stats()["async"]`):
+
+| Metric | Description |
+|--------|-------------|
+| `overlap_ratio` | Fraction of transfers that completed before the expert was needed (higher = better) |
+| `prefetch_hits` | Experts found already transferred when needed |
+| `sync_waits` | Times the compute stream had to wait for an in-flight transfer |
+| `async_transfers` | Total transfers started on the async stream |
+| `sync_transfers` | Transfers done synchronously (fallback) |
+
+Async transfers require a CUDA-capable GPU and are most effective with
+a `prefetch` strategy (e.g., `history` or `lookahead`) that accurately
+predicts future expert demand.
 
 ### Tested Models
 
@@ -1374,7 +1488,7 @@ policy promoe {
 | `parse_policies(source)` | Parse multiple policies from a string |
 | `parse_file(path)` | Parse a `.moe` file |
 | `compile_policy(ir)` | Compile PolicyIR to CompiledPolicy |
-| `build_hook(compiled)` | Create a runtime hook (Python or Cython) |
+| `build_hook(compiled, **kw)` | Create a runtime hook; pass `num_layers`/`num_experts` for per-layer policies |
 | `validate_policy(ir)` | Validate a PolicyIR (raises on failure) |
 
 ### Classes
@@ -1387,6 +1501,7 @@ policy promoe {
 | `PrefetchIR` | Prefetch configuration IR |
 | `ScheduleIR` | Schedule configuration IR |
 | `MonitorIR` | Monitor configuration IR |
+| `PerLayerIR` | Per-layer EPCB configuration IR |
 | `PolicyHook` | Python dispatch orchestrator |
 | `DispatchPlan` | Result of `hook.on_layer()` |
 | `ExpertDispatch` | Per-expert placement decision |
@@ -1397,6 +1512,8 @@ policy promoe {
 | `PerLayerConfig` | Configuration for per-layer caching |
 | `RoutingEntropyTracker` | Computes per-layer Shannon entropy |
 | `WeightPlacementManager` | Manages expert CPU↔GPU transfers during inference |
+| `AsyncTransferManager` | CUDA stream-based async transfer manager |
+| `AsyncTransferStats` | Stats for async transfer overlap tracking |
 | `GenericMoEAccessor` | Auto-detected model accessor (from `auto_accessor()`) |
 
 ### Enums
@@ -1407,6 +1524,7 @@ policy promoe {
 | `PrefetchStrategy` | `none`, `affinity`, `history`, `lookahead` |
 | `ScheduleMode` | `gpu_only`, `cpu_fallback`, `hybrid` |
 | `ExecutionDevice` | `GPU`, `CPU` |
+| `AllocationSignal` | `entropy`, `uniform` |
 
 ### Autotuner
 
@@ -1422,7 +1540,7 @@ Returns `(best_result, top_k_results)` where each result contains
 | Exception | Description |
 |-----------|-------------|
 | `DSLError` | Raised for structural or syntax-level issues (missing cache, duplicate params, unknown enums, unknown metrics, file not found) |
-| `ValidationError` | Raised when a policy violates semantic constraints (17 validation rules, reports all violations at once) |
+| `ValidationError` | Raised when a policy violates semantic constraints (20 validation rules, reports all violations at once) |
 
 Both are importable from the top-level package:
 ```python
@@ -1476,3 +1594,55 @@ Policy: composed_showcase
 ```
 
 The `validate` command exits with code 0 on success, 1 if any file fails.
+
+---
+
+## 15. Benchmark & Evaluation Scripts
+
+All scripts live in `scripts/` and produce JSON results in `figures/`.
+
+### Offline (no GPU required)
+
+| Script | Description |
+|--------|-------------|
+| `run_eval.py` | Trace replay with policy comparison |
+| `run_sweep.py` | Parameter sweep across policies |
+| `run_epcb_design_space.py` | EPCB allocation signal comparison (Table 2) |
+| `run_static_vs_dynamic_epcb.py` | Static vs dynamic EPCB comparison |
+| `ablation_epcb_sensitivity.py` | EPCB c_min/c_max/interval sensitivity sweep |
+| `verify_cross_system.py` | Cross-system policy reproduction (Table 7) |
+
+### GPU required
+
+| Script | Description |
+|--------|-------------|
+| `bench_qwen_multirun.py` | Qwen1.5-MoE throughput benchmark (Table 4) |
+| `bench_coldstart.py` | Per-token cold-start throughput analysis |
+| `bench_power.py` | GPU power/energy measurement via nvidia-smi sidecar |
+| `bench_async_transfer.py` | Async vs sync expert transfer comparison |
+| `eval_quality.py` | Perplexity evaluation on wikitext-2 (offloaded vs baseline) |
+| `profile_dispatch.py` | Per-layer dispatch overhead measurement (Table 5) |
+
+### Figure generation
+
+| Script | Description |
+|--------|-------------|
+| `generate_figures.py` | Generate all paper figures from result JSONs |
+| `plot_coldstart.py` | Cold-start throughput figure (Figure 3) |
+
+### Example usage
+
+```bash
+# EPCB sensitivity ablation (fast, CPU-only)
+python scripts/ablation_epcb_sensitivity.py
+
+# Perplexity comparison (requires GPU + ~75 min for 4096 tokens)
+python scripts/eval_quality.py --max-eval-tokens 4096
+
+# Power measurement (requires GPU)
+python scripts/bench_power.py --max-tokens 64 --runs 3
+
+# Cold-start analysis + plot
+python scripts/bench_coldstart.py --max-tokens 200
+python scripts/plot_coldstart.py
+```

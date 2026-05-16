@@ -5,9 +5,11 @@ from __future__ import annotations
 from moe_policylang.adaptive import AdaptIR, AdaptRule
 from moe_policylang.errors import DSLError
 from moe_policylang.ir import (
+    AllocationSignal,
     CacheIR,
     EvictionPolicy,
     MonitorIR,
+    PerLayerIR,
     PolicyIR,
     PrefetchIR,
     PrefetchStrategy,
@@ -30,6 +32,7 @@ class PolicyBuilder:
         self._schedule: ScheduleIR | None = None
         self._monitor: MonitorIR | None = None
         self._adapt: AdaptIR | None = None
+        self._per_layer: PerLayerIR | None = None
 
     # -- DSL primitives -----------------------------------------------------
 
@@ -129,6 +132,29 @@ class PolicyBuilder:
             raise DSLError("Duplicate adapt() block in policy definition")
         self._adapt = AdaptIR(rules=list(rules))
 
+    def per_layer(
+        self,
+        allocation: AllocationSignal | str = AllocationSignal.ENTROPY,
+        entropy_window: int = 200,
+        min_capacity: int = 2,
+        max_capacity: int = 64,
+        rebalance_interval: int = 500,
+        total_budget: int | None = None,
+    ) -> None:
+        """Enable per-layer EPCB allocation."""
+        if self._per_layer is not None:
+            raise DSLError("Duplicate per_layer() block in policy definition")
+        if isinstance(allocation, str):
+            allocation = AllocationSignal(allocation)
+        self._per_layer = PerLayerIR(
+            allocation=allocation,
+            entropy_window=entropy_window,
+            min_capacity=min_capacity,
+            max_capacity=max_capacity,
+            rebalance_interval=rebalance_interval,
+            total_budget=total_budget,
+        )
+
     # -- Build --------------------------------------------------------------
 
     def _build(self, name: str) -> PolicyIR:
@@ -141,6 +167,7 @@ class PolicyBuilder:
             schedule=self._schedule or ScheduleIR(),
             monitor=self._monitor,
             adapt=self._adapt,
+            per_layer=self._per_layer,
         )
         validate_policy(ir)
         return ir
@@ -175,6 +202,10 @@ class FluentPolicyBuilder:
 
     def adapt(self, rules: list[AdaptRule]) -> "FluentPolicyBuilder":
         self._inner.adapt(rules)
+        return self
+
+    def per_layer(self, **kwargs) -> "FluentPolicyBuilder":
+        self._inner.per_layer(**kwargs)
         return self
 
     def done(self) -> PolicyIR:

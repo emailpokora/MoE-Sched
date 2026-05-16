@@ -130,6 +130,11 @@ class WeightPlacementManager:
     This is the mechanism layer. The PolicyHook (policy layer) decides
     which experts should be cached; this class executes those decisions
     by calling the ExpertAccessor to move weights between devices.
+
+    When ``async_transfers=True``, expert weight copies use a dedicated
+    CUDA stream so transfers overlap with compute.  Prefetched experts
+    (predicted by the policy's prefetcher) are transferred asynchronously
+    during the current layer's forward pass.
     """
 
     def __init__(
@@ -137,15 +142,23 @@ class WeightPlacementManager:
         hook: PolicyHook,
         accessor: ExpertAccessor,
         gpu_device: int | torch.device = 0,
+        async_transfers: bool = False,
     ):
         self.hook = hook
         self.accessor = accessor
         self.gpu_device = torch.device(f"cuda:{gpu_device}" if isinstance(gpu_device, int) else gpu_device)
         self.stats = PlacementStats()
+        self.async_transfers = async_transfers
         # Track which (layer, expert) pairs are on GPU
         self._on_gpu: set[tuple[int, int]] = set()
         # Current layer being processed (set by forward_layer / callers)
         self._current_layer_idx: int = 0
+
+        # Async transfer manager (created lazily if async_transfers=True)
+        self._atm = None
+        if async_transfers and torch.cuda.is_available():
+            from moe_policylang.integrations.async_transfer import AsyncTransferManager
+            self._atm = AsyncTransferManager(self.gpu_device)
 
         # Install eviction callback on the cache so physical GPU memory
         # is freed when the policy evicts an expert — O(1) per eviction.
@@ -182,10 +195,27 @@ class WeightPlacementManager:
         self._on_gpu.clear()
 
     def _ensure_on_gpu(self, layer_idx: int, expert_idx: int) -> None:
-        """Move expert to GPU if not already there."""
+        """Move expert to GPU if not already there.
+
+        If async transfers are enabled, checks whether the expert was
+        already prefetched asynchronously before falling back to a
+        synchronous copy.
+        """
         key = (layer_idx, expert_idx)
         if key in self._on_gpu:
             return
+
+        # Check async manager for pre-fetched expert
+        if self._atm is not None:
+            gpu_tensors = self._atm.ensure_ready(layer_idx, expert_idx)
+            if gpu_tensors is not None:
+                # Expert was async-transferred — just mark it on GPU
+                self._on_gpu.add(key)
+                self.stats.cpu_to_gpu_transfers += 1
+                self.stats.bytes_transferred += self.accessor.expert_size_bytes(layer_idx, expert_idx)
+                return
+
+        # Synchronous fallback
         t0 = time.perf_counter()
         self.accessor.set_expert_device(layer_idx, expert_idx, self.gpu_device)
         torch.cuda.synchronize(self.gpu_device)
@@ -203,6 +233,9 @@ class WeightPlacementManager:
         self.accessor.set_expert_device(layer_idx, expert_idx, torch.device("cpu"))
         self._on_gpu.discard(key)
         self.stats.gpu_to_cpu_transfers += 1
+        # Also evict from async transfer cache
+        if self._atm is not None:
+            self._atm.evict(layer_idx, expert_idx)
 
     def attach(self) -> list:
         """Hook into the model's MoE layers.
@@ -323,15 +356,51 @@ class WeightPlacementManager:
                 for eid in needed:
                     self._ensure_on_gpu(layer_idx, eid)
 
+            # Async prefetch: start transferring predicted experts for next layer
+            if self._atm is not None:
+                # The prefetcher already ran during on_layer() calls above;
+                # use the last token's dispatch plan for predictions.
+                next_layer = layer_idx + 1
+                if next_layer < self.accessor.num_layers:
+                    last_selected = indices[-1].cpu().tolist()
+                    predicted = self.hook.prefetcher.predict(layer_idx, last_selected)
+                    self.start_async_prefetch(next_layer, predicted)
+
             self.stats.forward_calls += 1
             return output
 
         return gate_hook
 
+    def start_async_prefetch(
+        self,
+        layer_idx: int,
+        expert_ids: Sequence[int],
+    ) -> None:
+        """Begin async transfer of predicted experts for an upcoming layer.
+
+        Called after on_layer() returns a prefetch list.  The transfers
+        run on a dedicated CUDA stream while the current layer's expert
+        forward passes execute on the default stream.
+        """
+        if self._atm is None:
+            return
+        for eid in expert_ids:
+            key = (layer_idx, eid)
+            if key in self._on_gpu:
+                continue
+            # Get CPU tensors to transfer
+            try:
+                params = self.accessor.get_expert_params(layer_idx, eid)
+                cpu_tensors = {f"param_{i}": p for i, p in enumerate(params)}
+                size_bytes = sum(p.numel() * p.element_size() for p in params)
+                self._atm.start_transfer(layer_idx, eid, cpu_tensors, size_bytes)
+            except Exception:
+                pass  # Skip on error — sync fallback handles it
+
     def get_stats(self) -> dict:
         """Combined policy + placement stats."""
         policy_stats = self.hook.stats_snapshot()
-        return {
+        result = {
             "policy": policy_stats,
             "placement": {
                 "cpu_to_gpu_transfers": self.stats.cpu_to_gpu_transfers,
@@ -342,3 +411,6 @@ class WeightPlacementManager:
                 "forward_calls": self.stats.forward_calls,
             },
         }
+        if self._atm is not None:
+            result["async"] = self._atm.stats.to_dict()
+        return result

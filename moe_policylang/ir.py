@@ -32,6 +32,11 @@ class ScheduleMode(Enum):
     HYBRID = "hybrid"
 
 
+class AllocationSignal(Enum):
+    ENTROPY = "entropy"
+    UNIFORM = "uniform"
+
+
 # ---------------------------------------------------------------------------
 # IR dataclasses
 # ---------------------------------------------------------------------------
@@ -83,6 +88,16 @@ class MonitorIR:
 
 
 @dataclass
+class PerLayerIR:
+    allocation: AllocationSignal = AllocationSignal.ENTROPY
+    entropy_window: int = 200
+    min_capacity: int = 2
+    max_capacity: int = 64
+    rebalance_interval: int = 500
+    total_budget: Optional[int] = None
+
+
+@dataclass
 class PolicyIR:
     name: str
     cache: CacheIR
@@ -90,3 +105,4 @@ class PolicyIR:
     schedule: ScheduleIR = field(default_factory=ScheduleIR)
     monitor: Optional[MonitorIR] = None
     adapt: Optional["AdaptIR"] = None
+    per_layer: Optional[PerLayerIR] = None

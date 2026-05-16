@@ -29,9 +29,11 @@ from lark.exceptions import VisitError
 from moe_policylang.errors import DSLError, ValidationError
 from moe_policylang.adaptive import AdaptAction, AdaptCondition, AdaptIR, AdaptRule
 from moe_policylang.ir import (
+    AllocationSignal,
     CacheIR,
     EvictionPolicy,
     MonitorIR,
+    PerLayerIR,
     PolicyIR,
     PrefetchIR,
     PrefetchStrategy,
@@ -272,6 +274,9 @@ class _IRBuilder(Transformer):
     def adapt_trigger(self, value):
         return AdaptAction(param="trigger", value=str(value))
 
+    def adapt_rebalance(self, value):
+        return AdaptAction(param="rebalance", value=str(value))
+
     def adapt_rule_windowed(self, metric, op, threshold, window, action):
         _validate_metric(str(metric))
         return AdaptRule(
@@ -387,6 +392,35 @@ class _IRBuilder(Transformer):
     def adapt_block(self, *rules):
         return ("adapt", AdaptIR(rules=list(rules)))
 
+    # -- per_layer params ---------------------------------------------------
+
+    _ALLOCATION_MAP = {
+        "entropy": AllocationSignal.ENTROPY,
+        "uniform": AllocationSignal.UNIFORM,
+    }
+
+    def per_layer_allocation(self, v):
+        return ("allocation", _resolve_enum(v, self._ALLOCATION_MAP, "allocation signal"))
+
+    def per_layer_entropy_window(self, v):
+        return ("entropy_window", v)
+
+    def per_layer_min_cap(self, v):
+        return ("min_capacity", v)
+
+    def per_layer_max_cap(self, v):
+        return ("max_capacity", v)
+
+    def per_layer_rebalance_interval(self, v):
+        return ("rebalance_interval", v)
+
+    def per_layer_total_budget(self, v):
+        return ("total_budget", v)
+
+    def per_layer_block(self, *params):
+        kw = self._check_duplicates(params)
+        return ("per_layer", PerLayerIR(**kw))
+
     def block(self, item):
         return item
 
@@ -423,13 +457,14 @@ class _IRBuilder(Transformer):
             schedule=block_dict.get("schedule", ScheduleIR()),
             monitor=block_dict.get("monitor"),
             adapt=adapt,
+            per_layer=block_dict.get("per_layer"),
         )
         validate_policy(ir)
         return ir
 
     # -- version declaration -------------------------------------------------
 
-    _CURRENT_VERSION = 0.6
+    _CURRENT_VERSION = 0.7
 
     def version_decl(self, version_num):
         if float(version_num) > self._CURRENT_VERSION:

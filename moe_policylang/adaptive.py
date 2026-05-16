@@ -262,6 +262,33 @@ class AdaptiveHook:
                     new_ir.cache.memory_threshold = 0.9
                 applied = True
 
+        # -- Per-layer rebalance (EPCB) --
+        elif action.param == "rebalance":
+            if hasattr(self.base, "_rebalance"):
+                self.base._rebalance()
+                self._last_fired[rule_idx] = self._step
+                self._adaptations.append({
+                    "step": self._step,
+                    "rule": rule_idx,
+                    "param": action.param,
+                    "value": action.value,
+                })
+            else:
+                self._skipped.append({
+                    "step": self._step,
+                    "rule": rule_idx,
+                    "param": action.param,
+                    "value": action.value,
+                    "reason": "base hook does not support rebalance "
+                              "(requires per_layer block)",
+                })
+                logger.warning(
+                    "Adaptive rule %d skipped at step %d: rebalance=%s "
+                    "but base hook has no _rebalance method",
+                    rule_idx, self._step, action.value,
+                )
+            return  # rebalance is handled directly, skip IR recompilation
+
         if applied:
             from moe_policylang.runtime.hooks import PolicyHook
             from moe_policylang.validator import validate_policy

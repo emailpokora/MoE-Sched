@@ -254,12 +254,21 @@ class PolicyHook:
 # Convenience factory
 # ---------------------------------------------------------------------------
 
-def build_hook(compiled: CompiledPolicy) -> PolicyHook | "AdaptiveHook":
+def build_hook(
+    compiled: CompiledPolicy,
+    num_layers: int | None = None,
+    num_experts: int | None = None,
+) -> PolicyHook | "AdaptiveHook":
     """Factory: code-generate a runtime hook from a CompiledPolicy.
 
     If the policy contains ``adapt`` rules, the hook is wrapped in an
     :class:`~moe_policylang.adaptive.AdaptiveHook` that monitors metrics and
     dynamically adjusts policy parameters at runtime.
+
+    If the policy contains a ``per_layer`` block, a
+    :class:`~moe_policylang.runtime.per_layer.PerLayerHook` is created
+    instead.  This requires *num_layers* and *num_experts* to be provided
+    (typically inferred from the model by the integration layer).
 
     When the full Cython fast-path hook is available (``_hooks.pyx`` built),
     a :class:`FastPolicyHook` is used instead of the Python ``PolicyHook``
@@ -267,17 +276,42 @@ def build_hook(compiled: CompiledPolicy) -> PolicyHook | "AdaptiveHook":
     """
     from moe_policylang.runtime._fast import FAST_HOOK_AVAILABLE
 
-    if FAST_HOOK_AVAILABLE:
-        from moe_policylang.runtime._fast._hooks import FastPolicyHook
-        hook = FastPolicyHook(compiled)
+    per_layer_ir = getattr(compiled, "_per_layer_ir", None)
+    policy_ir = getattr(compiled, "_policy_ir", None)
+
+    if per_layer_ir is not None:
+        # Per-layer EPCB mode — requires model dimensions
+        if num_layers is None or num_experts is None:
+            raise ValueError(
+                "per_layer block requires num_layers and num_experts. "
+                "Pass them explicitly or use the integration API."
+            )
+        from moe_policylang.runtime.per_layer import PerLayerConfig, PerLayerHook
+
+        config = PerLayerConfig(
+            entropy_window=per_layer_ir.entropy_window,
+            min_capacity=per_layer_ir.min_capacity,
+            max_capacity=per_layer_ir.max_capacity,
+            rebalance_interval=per_layer_ir.rebalance_interval,
+            total_budget=per_layer_ir.total_budget,
+        )
+        hook = PerLayerHook(
+            base_ir=policy_ir,
+            num_layers=num_layers,
+            num_experts=num_experts,
+            config=config,
+        )
     else:
-        hook = PolicyHook(compiled)
+        if FAST_HOOK_AVAILABLE:
+            from moe_policylang.runtime._fast._hooks import FastPolicyHook
+            hook = FastPolicyHook(compiled)
+        else:
+            hook = PolicyHook(compiled)
 
     adapt_ir = getattr(compiled, "_adapt_ir", None)
     if adapt_ir is not None and adapt_ir.rules:
         from moe_policylang.adaptive import AdaptiveHook
         from moe_policylang.compiler import compile_policy
 
-        policy_ir = getattr(compiled, "_policy_ir", None)
         hook = AdaptiveHook(hook, adapt_ir, policy_ir, compile_policy)
     return hook

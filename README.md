@@ -106,15 +106,18 @@ Python dicts could configure this. The DSL adds three things they can't:
 
 All policies add **< 3.2% overhead** on A100 (6–47 µs/layer vs. 1,459 µs for MoE forward pass).
 
-### 13–36× less code than published systems
+### 14–40× less code than published systems
 
 | System | Their LOC | MoE-PolicyLang | Reduction |
-|--------|-----------|-----------|-----------|
-| ExpertFlow | ~400 (Py+CUDA) | 16 lines | 25× |
-| HybriMoE | ~500 (Py+CUDA) | 14 lines | 36× |
-| Fiddler | ~250 (Py+C++) | 7 lines | 36× |
-| MoE-Infinity | ~200 (Python) | 16 lines | 13× |
-| vLLM | ~260 (Py+C++) | 12 lines | 22× |
+|--------|-----------|-----------|----------|
+| Fiddler | **280** | 7 lines | 40× |
+| HybriMoE | ~500 | 14 lines | 36× |
+| MoE-Infinity | **520** | 16 lines | 33× |
+| vLLM | **300** | 12 lines | 25× |
+| ExpertFlow | ~400 | 16 lines | 25× |
+| FineMoE | ~350 | 25 lines | 14× |
+
+**Bold** LOC counts are measured from open-source repos; others estimated from paper descriptions.
 
 ### Policy selection produces measurable differences
 
@@ -124,20 +127,22 @@ All policies add **< 3.2% overhead** on A100 (6–47 µs/layer vs. 1,459 µs for
 
 Different policies → different real performance. Mixtral saturates quickly (8 experts); DeepSeek (64 experts) needs smarter strategies.
 
-### EPCB: Smart allocation beats raw capacity
+### EPCB: Per-layer allocation + entropy signal
 
-Not all layers are equal — some concentrate on a few experts, others spread across many. **Entropy-Proportional Cache Budgeting** allocates more cache to high-entropy layers:
+Not all layers are equal — some concentrate on a few experts, others spread across many. **Entropy-Proportional Cache Budgeting (EPCB)** has two parts:
+
+1. **Per-layer allocation** is the key structural lever: replacing a single shared cache with per-layer caches at the same total budget yields +14.7pp on DeepSeek-V2-Lite.
+2. **Shannon entropy** is the best signal for distributing capacity across layers: +2.2pp over uniform per-layer allocation, outperforming five alternative signals.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/jesse-pokora/MoE-PolicyLang/master/docs/images/deepseek_entropy_allocation.png" width="600" alt="Per-layer entropy and capacity allocation">
 </p>
 
-| Strategy | Hit Rate |
-|----------|----------|
-| Uniform cap=32 | 48.6% |
-| **EPCB (same memory)** | **64.5%** |
-
-+15.9 percentage points from smarter allocation — no extra memory.
+| Strategy | Hit Rate | Δ |
+|----------|----------|---|
+| Shared cache (32 slots) | 48.6% | baseline |
+| Per-layer uniform (864 slots) | 63.3% | +14.7pp |
+| **Per-layer entropy (864 slots)** | **65.5%** | **+16.9pp** |
 
 ### Live inference on consumer GPU
 
@@ -219,7 +224,8 @@ moe_policylang/
 └── integrations/
     ├── __init__.py         # attach() — main user API
     ├── huggingface.py      # HuggingFace Transformers hooks
-    └── weight_placement.py # Expert offloading manager
+    ├── weight_placement.py # Expert offloading manager
+    └── async_transfer.py   # CUDA stream async transfers
 ```
 
 ---
@@ -237,6 +243,14 @@ python scripts/run_constrained_e2e.py
 
 # Generate all paper figures
 python scripts/generate_figures.py
+
+# Benchmarks & evaluations (requires CUDA GPU + model weights)
+python scripts/bench_qwen_multirun.py   # Qwen throughput (Table 4)
+python scripts/bench_coldstart.py       # Cold-start throughput analysis
+python scripts/bench_power.py           # Power/energy measurement
+python scripts/eval_quality.py          # Perplexity evaluation (wikitext-2)
+python scripts/ablation_epcb_sensitivity.py  # EPCB hyperparameter sweep
+python scripts/plot_coldstart.py        # Generate cold-start figure
 ```
 
 ---
@@ -247,8 +261,8 @@ python scripts/generate_figures.py
 python -m pytest tests/ -q
 ```
 
-362 tests covering parsing, validation, compilation, runtime dispatch,
-adaptive policies, and integration hooks.
+398+ tests covering parsing, validation, compilation, runtime dispatch,
+adaptive policies, per-layer EPCB, and integration hooks.
 
 ---
 

@@ -196,5 +196,6 @@ def compile_policy(ir: "PolicyIR") -> CompiledPolicy:
         triggers=triggers,
     )
     compiled._adapt_ir = getattr(ir, "adapt", None)
+    compiled._per_layer_ir = getattr(ir, "per_layer", None)
     compiled._policy_ir = ir
     return compiled
