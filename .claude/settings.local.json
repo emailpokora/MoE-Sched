@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv)",
+      "Bash(nvidia-smi --query-gpu=memory.free --format=csv,noheader)",
+      "Bash(mkdir -p /d/hf_cache)",
+      "Bash(python -c \"import os; print\\('HF_HOME default would be:', os.path.expanduser\\('~/.cache/huggingface'\\)\\)\")",
+      "Read(//d/hf_cache//**)",
+      "Read(//d/hf_cache/hub//**)",
+      "Bash(python -c ' *)",
+      "Bash(python scripts/bench_qwen_ablation.py --runs 5 --max-tokens 64)",
+      "Bash(tee logs/qwen_ablation.log)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.get\\('policies',{}\\).keys\\(\\)\\)\\)\")",
+      "Bash(python scripts/bench_qwen_budget_sweep.py --runs 5 --max-tokens 64 --trace-tokens 128)",
+      "Bash(tee logs/qwen_budget_sweep.log)",
+      "Bash(python scripts/run_epcb_qwen.py)",
+      "Bash(tee logs/qwen_epcb_offline.log)",
+      "Bash(python scripts/record_qwen_trace.py)",
+      "Bash(tee logs/qwen_trace_rerecord.log)",
+      "Bash(make)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('scripts/bench_deepseek_a100.py'\\).read\\(\\)\\); print\\('OK'\\)\")",
+      "Bash(git -C /c/Users/jpoko/CascadeProjects/MoE-Sched status MoE-PolicyLang-Paper/main.tex)",
+      "Bash(git -C /c/Users/jpoko/CascadeProjects/MoE-Sched diff --stat MoE-PolicyLang-Paper/main.tex)",
+      "Bash(git -C /c/Users/jpoko/CascadeProjects/MoE-Sched status)",
+      "Bash(git check-ignore *)",
+      "Bash(python)"
+    ]
+  }
+}
